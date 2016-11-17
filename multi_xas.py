@@ -428,3 +428,46 @@ def plot_avg_xas_all(bin_xas):
 
     plt.tight_layout()
     plt.show()
+
+def plot_division(xas, dividend, divisor):
+    dividend = dividend.upper()
+    divisor = divisor.upper()
+
+    if dividend == "I0" or "IO":
+        dividend_array = xas.i0
+    elif dividend == "TEY":
+        dividend_array = xas.tey
+    elif dividend == "DIODE" or "PD1":
+        dividend_array = xas.diode
+    elif dividend == "PFY_SDD1":
+        dividend_array = xas.pfy_sdd1
+    elif dividend == "PFY_SDD2":
+        dividend_array = xas.pfy_sdd2
+    elif dividend == "PFY_SDD3":
+        dividend_array = xas.pfy_sdd3
+    elif dividend == "PFY_SDD4":
+        dividend_array = xas.pfy_sdd4
+    else:
+        return "Invalid dividend name"
+
+    if divisor == "I0" or "IO":
+        divisor_array = xas.i0
+    elif divisor == "TEY":
+        divisor_array = xas.tey
+    elif divisor == "DIODE" or "PD1":
+        divisor_array = xas.diode
+    elif divisor == "PFY_SDD1":
+        divisor_array = xas.pfy_sdd1
+    elif divisor == "PFY_SDD2":
+        divisor_array = xas.pfy_sdd2
+    elif divisor == "PFY_SDD3":
+        divisor_array = xas.pfy_sdd3
+    elif divisor == "PFY_SDD4":
+        divisor_array = xas.pfy_sdd4
+    else:
+        return "Invalid divisor name"
+
+    division_array = np.array(dividend_array) / np.array(divisor_array)
+    plt.figure()
+    plt.plot(xas.energy, division_array)
+    plt.show()
