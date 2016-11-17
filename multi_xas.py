@@ -111,7 +111,7 @@ class MultiXAS(XAS):
         intensity = self.pfy_sdd4
 
     total_cscan_num = len(self.energy)
-    # print total_cscan_num
+    # print (total_cscan_num)
 
     plt.figure()
     # setup the size of figure
@@ -180,7 +180,7 @@ def eem(multi_xas, name, scan_num=None):
       temp_max = max(intensity[i])
       if temp_max > v_max:
          v_max = temp_max
-   # print "v_max: ", v_max
+   # print ("v_max: ", v_max)
 
    intensity = np.array(intensity)
    plt.figure()
@@ -202,13 +202,13 @@ def get_good_scan(multi_xas, ban_scan_list):
     good_scan_list = multi_xas.scan_number[:]
     for i in range (length):
         for j in range(len(ban_scan_list)):
-            # print "i: " + str(i)
-            # print "j: " + str(j)
+            # print ("i: " + str(i))
+            # print ("j: " + str(j))
             if scan_num_list[i] == 'entry'+ str(ban_scan_list[j]):
                 good_scan_list.remove('entry'+ str(ban_scan_list[j]))
                 good_scan_index.remove(i)
-    print good_scan_list
-    print good_scan_index
+    print (good_scan_list)
+    print (good_scan_index)
     return get_good_scan_data(multi_xas, good_scan_index, good_scan_list)
 
 def get_good_scan_data(multi_xas, good_scan_index, good_scan_list):
@@ -252,12 +252,12 @@ def binned_xas (xas, start_energy, end_energy, bin_interval):
 
 def create_bins(start_energy, end_energy, bin_interval):
 
-    print "Start creating bins"
+    print ("Start creating bins")
     num_of_bins = int ((end_energy-start_energy) / bin_interval)
     num_of_edges = num_of_bins + 1
-    # print "Number of Bins:", num_of_bins
-    # print "Number of Edges:", num_of_edges
-    print "Energy range is: ", start_energy, "-", end_energy
+    # print ("Number of Bins:", num_of_bins)
+    # print ("Number of Edges:", num_of_edges)
+    print ("Energy range is: ", start_energy, "-", end_energy)
     edges_array = np.linspace(start_energy, end_energy, num_of_edges)
 
     # generate mean of bins
@@ -267,9 +267,8 @@ def create_bins(start_energy, end_energy, bin_interval):
     for i in range(0, num_of_bins):
         mean_energy_array.append(first_mean + bin_width * i)
     mean_energy_array = np.array(mean_energy_array)
-    # print "Mean of energy bins: ", mean_energy_array
-    print "created bins completed.\n"
-    # print ""
+    # print ("Mean of energy bins: ", mean_energy_array)
+    print ("created bins completed.\n")
     return edges_array, mean_energy_array, num_of_bins
 
 
@@ -297,10 +296,10 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
 
     bin_array = [[] for i in range(num_of_bins)]
     bin_width = (edges_array[-1] - edges_array[0]) / num_of_bins
-    # print "The width of a bin is:", bin_width
+    # print ("The width of a bin is:", bin_width)
 
     # interation to assign data into bins
-    print "Start assigning data points into bins"
+    print ("Start assigning data points into bins")
     len_energy_array = len(energy_array)
     print("--- %s seconds ---" % (time.time() - start_time))
     for scan_index in range(0, len_energy_array):
@@ -310,7 +309,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
                 x = energy_array[scan_index][datapoint_index] - edges_array[0]
                 # get integer part and plus 1
                 assign_bin_num = int(x / bin_width) + 1
-                # print assign_bin_num
+                # print (assign_bin_num)
                 bin_array[assign_bin_num - 1].append([scan_index, datapoint_index])
 
                 # calculate the sum of scaler
@@ -332,11 +331,11 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
         # get the total number of data points in a particular bin
         total_data_point = len(bin_array[index])
 
-        # print "Bin No.", index+1, "; it contains ", total_data_point, "data points"
+        # print ("Bin No.", index+1, "; it contains ", total_data_point, "data points")
 
         if total_data_point == 0:
             empty_bins = empty_bins + 1
-            print "No data point is in Bin No.", index + 1, ". Average calculation is not necessary"
+            print ("No data point is in Bin No."+ index + 1 + ". Average calculation is not necessary")
         else:
 
             tey_bin_array[index] = tey_bin_array[index] / total_data_point
@@ -357,8 +356,8 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
     bin_xas.pfy_sdd3 = pfy_sdd3_bin_array
     bin_xas.pfy_sdd4 = pfy_sdd4_bin_array
 
-    print "Assign and calculate data points completed\n"
-    print("--- %s seconds ---" % (time.time() - start_time))
+    print ("Assign and calculate data points completed\n")
+    print ("--- %s seconds ---" % (time.time() - start_time))
     return bin_xas
 
 
@@ -367,7 +366,7 @@ def plot_avg_xas_all(bin_xas):
     Generate all plots (matplotlib figures) for averaged data at once
     :return: None
     """
-    print "Plotting average XAS."
+    print ("Plotting average XAS.")
     # plt.close('all')
     # matplotlib.rcParams['figure.figsize'] = (14, 22)
 
