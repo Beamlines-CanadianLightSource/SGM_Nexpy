@@ -95,11 +95,12 @@ class MultiXAS(XAS):
     # matplotlib.rcParams['figure.figsize'] = (13, 10)
     # plt.close('all')
 
+    name = name.upper()
     if name == "TEY":
         intensity = self.tey
-    elif name == "I0":
+    elif name == "I0" or name == "IO":
         intensity = self.i0
-    elif name == "Diode":
+    elif name == "DIODE" or name == "PD1":
         intensity = self.diode
     elif name == "PFY_SDD1":
         intensity = self.pfy_sdd1
@@ -109,6 +110,8 @@ class MultiXAS(XAS):
         intensity = self.pfy_sdd3
     elif name == "PFY_SDD4":
         intensity = self.pfy_sdd4
+    else:
+        return "Invalid name for the intensity of summary plot"
 
     total_cscan_num = len(self.energy)
     # print (total_cscan_num)
@@ -143,56 +146,59 @@ class SingleXAS(XAS):
 
 
 def eem(multi_xas, name, scan_num=None):
-   start_time = time.time()
+    start_time = time.time()
 
-   # matplotlib.rcParams['figure.figsize'] = (14, 10)
-   # plt.close('all')
+    # matplotlib.rcParams['figure.figsize'] = (14, 10)
+    # plt.close('all')
 
-   if scan_num == None:
+    if scan_num == None:
       scan_num = 0
 
-   if name == "SDD1":
+    name = name.upper()
+    if name == "SDD1":
       intensity = multi_xas.sdd1[scan_num]
       # intensity = np.array(intensity)
-   elif name == "SDD2":
+    elif name == "SDD2":
       intensity = multi_xas.sdd2[scan_num]
       # intensity = np.array(intensity)
-   elif name == "SDD3":
+    elif name == "SDD3":
       intensity = multi_xas.sdd3[scan_num]
       # intensity = np.array(intensity)
-   elif name == "SDD4":
+    elif name == "SDD4":
       intensity = multi_xas.sdd4[scan_num]
       # intensity = np.array(intensity)
+    else:
+        return "Invalid name for the intensity of EEM"
 
-   energy_array = np.array(multi_xas.energy[scan_num])
-   num_of_points = len(energy_array)
-   num_of_emission_bins = len(intensity[0])
+    energy_array = np.array(multi_xas.energy[scan_num])
+    num_of_points = len(energy_array)
+    num_of_emission_bins = len(intensity[0])
 
-   bin_num_for_x = np.zeros(shape=(num_of_points, num_of_emission_bins))
-   for i in range(num_of_points):
+    bin_num_for_x = np.zeros(shape=(num_of_points, num_of_emission_bins))
+    for i in range(num_of_points):
       bin_num_for_x[i].fill(energy_array[i])
 
-   bin_num_for_y = np.zeros(shape=(num_of_points, num_of_emission_bins))
-   bin_num_for_y[0:] = np.arange(10, (num_of_emission_bins + 1) * 10, 10)
+    bin_num_for_y = np.zeros(shape=(num_of_points, num_of_emission_bins))
+    bin_num_for_y[0:] = np.arange(10, (num_of_emission_bins + 1) * 10, 10)
 
-   v_max = max(intensity[0])
-   for i in range(1, num_of_points):
+    v_max = max(intensity[0])
+    for i in range(1, num_of_points):
       temp_max = max(intensity[i])
       if temp_max > v_max:
          v_max = temp_max
-   # print ("v_max: ", v_max)
+    # print ("v_max: ", v_max)
 
-   intensity = np.array(intensity)
-   plt.figure()
-   # print("--- %s seconds ---" % (time.time() - start_time))
-   plt.scatter(bin_num_for_x, bin_num_for_y, c=intensity, s=7, linewidths=0, vmax=v_max, vmin=0)
-   print("--- %s seconds ---" % (time.time() - start_time))
-   plt.yticks(np.arange(100, 2560, 100.0))
-   plt.xlabel('Incident Energy (eV)')
-   plt.ylabel('Emission Energy (eV)')
-   plt.grid()
-   plt.show()
-   print("--- %s seconds ---" % (time.time() - start_time))
+    intensity = np.array(intensity)
+    plt.figure()
+    # print("--- %s seconds ---" % (time.time() - start_time))
+    plt.scatter(bin_num_for_x, bin_num_for_y, c=intensity, s=7, linewidths=0, vmax=v_max, vmin=0)
+    print("--- %s seconds ---" % (time.time() - start_time))
+    plt.yticks(np.arange(100, 2560, 100.0))
+    plt.xlabel('Incident Energy (eV)')
+    plt.ylabel('Emission Energy (eV)')
+    plt.grid()
+    plt.show()
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 def get_good_scan(multi_xas, ban_scan_list):
     scan_num_list = multi_xas.scan_number
@@ -335,7 +341,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
 
         if total_data_point == 0:
             empty_bins = empty_bins + 1
-            print ("No data point is in Bin No."+ index + 1 + ". Average calculation is not necessary")
+            print ("No data point is in Bin No."+ str(index + 1) + ". Average calculation is not necessary")
         else:
 
             tey_bin_array[index] = tey_bin_array[index] / total_data_point
@@ -433,11 +439,11 @@ def plot_division(xas, dividend, divisor):
     dividend = dividend.upper()
     divisor = divisor.upper()
 
-    if dividend == "I0" or "IO":
+    if dividend == "I0" or dividend == "IO":
         dividend_array = xas.i0
     elif dividend == "TEY":
         dividend_array = xas.tey
-    elif dividend == "DIODE" or "PD1":
+    elif dividend == "DIODE" or dividend == "PD1":
         dividend_array = xas.diode
     elif dividend == "PFY_SDD1":
         dividend_array = xas.pfy_sdd1
@@ -450,11 +456,11 @@ def plot_division(xas, dividend, divisor):
     else:
         return "Invalid dividend name"
 
-    if divisor == "I0" or "IO":
+    if divisor == "I0" or divisor == "IO":
         divisor_array = xas.i0
     elif divisor == "TEY":
         divisor_array = xas.tey
-    elif divisor == "DIODE" or "PD1":
+    elif divisor == "DIODE" or divisor == "PD1":
         divisor_array = xas.diode
     elif divisor == "PFY_SDD1":
         divisor_array = xas.pfy_sdd1
