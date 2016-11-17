@@ -352,15 +352,58 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
             pfy_sdd3_bin_array[index] = pfy_sdd3_bin_array[index] / total_data_point
             pfy_sdd4_bin_array[index] = pfy_sdd4_bin_array[index] / total_data_point
 
-    bin_xas = MultiXAS()
-    bin_xas.energy = mean_energy_array
-    bin_xas.tey = tey_bin_array
-    bin_xas.i0 = i0_bin_array
-    bin_xas.diode = diode_bin_array
-    bin_xas.pfy_sdd1 = pfy_sdd1_bin_array
-    bin_xas.pfy_sdd2 = pfy_sdd2_bin_array
-    bin_xas.pfy_sdd3 = pfy_sdd3_bin_array
-    bin_xas.pfy_sdd4 = pfy_sdd4_bin_array
+    # remove empty bins in the front or at the end using slice indices
+    if empty_bins != 0:
+        index = 0
+        while pfy_sdd1_bin_array[index].any() == 0:
+            index = index + 1
+        empty_bin_front = index
+        empty_bin_back = empty_bins - empty_bin_front
+        last_non_empty_bin = num_of_bins - empty_bin_back
+        # if there are empty bins in the front
+        if empty_bin_front != 0 and empty_bin_back == 0:
+            bin_xas = MultiXAS()
+            bin_xas.energy = mean_energy_array[empty_bin_front:]
+            bin_xas.tey = tey_bin_array[empty_bin_front:]
+            bin_xas.i0 = i0_bin_array[empty_bin_front:]
+            bin_xas.diode = diode_bin_array[empty_bin_front:]
+            bin_xas.pfy_sdd1 = pfy_sdd1_bin_array[empty_bin_front:]
+            bin_xas.pfy_sdd2 = pfy_sdd2_bin_array[empty_bin_front:]
+            bin_xas.pfy_sdd3 = pfy_sdd3_bin_array[empty_bin_front:]
+            bin_xas.pfy_sdd4 = pfy_sdd4_bin_array[empty_bin_front:]
+        # if there are empty bins in the back
+        elif empty_bin_front == 0 and empty_bin_back != 0:
+            bin_xas = MultiXAS()
+            bin_xas.energy = mean_energy_array[:-empty_bin_back]
+            bin_xas.tey = tey_bin_array[:-empty_bin_back]
+            bin_xas.i0 = i0_bin_array[:-empty_bin_back]
+            bin_xas.diode = diode_bin_array[:-empty_bin_back]
+            bin_xas.pfy_sdd1 = pfy_sdd1_bin_array[:-empty_bin_back]
+            bin_xas.pfy_sdd2 = pfy_sdd2_bin_array[:-empty_bin_back]
+            bin_xas.pfy_sdd3 = pfy_sdd3_bin_array[:-empty_bin_back]
+            bin_xas.pfy_sdd4 = pfy_sdd4_bin_array[:-empty_bin_back]
+        # if there are empty bin in the front and back
+        else:
+            bin_xas = MultiXAS()
+            bin_xas.energy = mean_energy_array[empty_bin_front:last_non_empty_bin]
+            bin_xas.tey = tey_bin_array[empty_bin_front:last_non_empty_bin]
+            bin_xas.i0 = i0_bin_array[empty_bin_front:last_non_empty_bin]
+            bin_xas.diode = diode_bin_array[empty_bin_front:last_non_empty_bin]
+            bin_xas.pfy_sdd1 = pfy_sdd1_bin_array[empty_bin_front:last_non_empty_bin]
+            bin_xas.pfy_sdd2 = pfy_sdd2_bin_array[empty_bin_front:last_non_empty_bin]
+            bin_xas.pfy_sdd3 = pfy_sdd3_bin_array[empty_bin_front:last_non_empty_bin]
+            bin_xas.pfy_sdd4 = pfy_sdd4_bin_array[empty_bin_front:last_non_empty_bin]
+    # if there is no empty bins
+    else:
+        bin_xas = MultiXAS()
+        bin_xas.energy = mean_energy_array
+        bin_xas.tey = tey_bin_array
+        bin_xas.i0 = i0_bin_array
+        bin_xas.diode = diode_bin_array
+        bin_xas.pfy_sdd1 = pfy_sdd1_bin_array
+        bin_xas.pfy_sdd2 = pfy_sdd2_bin_array
+        bin_xas.pfy_sdd3 = pfy_sdd3_bin_array
+        bin_xas.pfy_sdd4 = pfy_sdd4_bin_array
 
     print ("Assign and calculate data points completed\n")
     print ("--- %s seconds ---" % (time.time() - start_time))
