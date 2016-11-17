@@ -19,7 +19,7 @@ xas.summary_plot("PFY_SDD3")
 good_xas = get_good_scan(xas , [2])
 
 ### Calculate (binning & average) and assign the processed data to a new attribute
-bin_xas = binned_xas(good_xas, start_energy = 1840, end_energy = 1880, bin_interval = 0.1
+bin_xas = binned_xas(good_xas, start_energy = 1840, end_energy = 1880, bin_interval = 0.1)
 
 ### Show all of the processed data in a figure
 plot_avg_xas_all(bin_xas)

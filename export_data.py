@@ -1,0 +1,61 @@
+import numpy as np
+import os
+import time
+
+
+def export_xas (xas, filename):
+    cwd = os.getcwd()
+    print (cwd)
+    export_file_path = cwd+"/"+filename+".xas"
+    print (export_file_path)
+
+    with open(export_file_path, "w") as out_file:
+        out_file.write("# Energy\tTEY\tI0\tDiode\tPFY_SDD1\tPFY_SDD2\tPFY_SDD3\tPFY_SDD4\n")
+        for i in range(0, len(xas.energy)):
+            out_string = ""
+            # print energy_array[i]
+            out_string += str(xas.energy[i])
+            out_string += "\t"
+            out_string += str(xas.tey[i])
+            out_string += "\t"
+            out_string += str(xas.i0[i])
+            out_string += "\t"
+            out_string += str(xas.diode[i])
+            out_string += "\t"
+            out_string += str(xas.pfy_sdd1[i])
+            out_string += "\t"
+            out_string += str(xas.pfy_sdd2[i])
+            out_string += "\t"
+            out_string += str(xas.pfy_sdd3[i])
+            out_string += "\t"
+            out_string += str(xas.pfy_sdd4[i])
+            out_string += "\n"
+            out_file.write(out_string)
+
+    print ("Export data complete")
+
+
+def export_normalized_data(export_data, filename):
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    print (dir_path)
+    export_file_path = dir_path+filename
+    with open(export_file_directory, "w") as out_file:
+        out_file.write("# Beamline.file-content: Normalized " + export_data.dividend + "\n")
+        string_table_header = "# " + export_data.dividend + "\t" + export_data.divisor + "\n"
+        out_file.write(string_table_header)
+        for i in range(0, len(export_data.dividend)):
+            out_string = ""
+            out_string += str(export_data.dividend[i])
+            out_string += "\t"
+            out_string += str(export_data.divisor[i])
+            out_string += "\n"
+            out_file.write(out_string)
+    print ("Export data complete.")
+
+
+class ExportData(object):
+    def __init__(self):
+
+        self.dividend_array = None
+        self.divisor = None
+        self.normalized_array = None

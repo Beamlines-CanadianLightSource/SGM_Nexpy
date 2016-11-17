@@ -118,9 +118,9 @@ class MultiXAS(XAS):
 
     plt.figure()
     # setup the size of figure
-    y_axis_height = total_cscan_num * 0.25
-    fig = plt.gcf()
-    fig.set_size_inches(14, y_axis_height, forward=True)
+    # y_axis_height = total_cscan_num * 0.3
+    # fig = plt.gcf()
+    # fig.set_size_inches(14, y_axis_height, forward=True)
 
     for i in range(0, total_cscan_num):
         scan_num_list = np.empty(len(self.energy[i]))
@@ -196,6 +196,7 @@ def eem(multi_xas, name, scan_num=None):
     plt.yticks(np.arange(100, 2560, 100.0))
     plt.xlabel('Incident Energy (eV)')
     plt.ylabel('Emission Energy (eV)')
+    plt.title("Excitation Emission Matrix")
     plt.grid()
     plt.show()
     print("--- %s seconds ---" % (time.time() - start_time))
@@ -519,4 +520,57 @@ def plot_division(xas, dividend, divisor):
     division_array = np.array(dividend_array) / np.array(divisor_array)
     plt.figure()
     plt.plot(xas.energy, division_array)
+    str_y_axis = StringIO()
+    str_y_axis.write(dividend + ' / ' + divisor)
+    plt.ylabel(str_y_axis.getvalue())
+    plt.title("Averaged %s / Averaged %s" % (dividend, divisor))
+    plt.show()
+
+    # export_data = ExportData()
+    # export_data.dividend = dividend
+    # export_data.dividend_array = dividend_array
+    # export_data.divisor = divisor
+    # export_data.divisor_array = divisor_array
+
+
+def plot_normalize(dividend_xas, dividend, divisor_xas, divisor):
+
+    if dividend == "I0" or dividend == "IO":
+        dividend_array = dividend_xas.i0
+    elif dividend == "TEY":
+        dividend_array = dividend_xas.tey
+    elif dividend == "DIODE" or dividend == "PD1":
+        dividend_array = dividend_xas.diode
+    elif dividend == "PFY_SDD1":
+        dividend_array = dividend_xas.pfy_sdd1
+    elif dividend == "PFY_SDD2":
+        dividend_array = dividend_xas.pfy_sdd2
+    elif dividend == "PFY_SDD3":
+        dividend_array = dividend_xas.pfy_sdd3
+    elif dividend == "PFY_SDD4":
+        dividend_array = dividend_xas.pfy_sdd4
+    else:
+        return "Invalid dividend name"
+
+    if divisor == "I0" or divisor == "IO":
+        divisor_array = divisor_xas.i0
+    elif divisor == "TEY":
+        divisor_array = divisor_xas.tey
+    elif divisor == "DIODE" or divisor == "PD1":
+        divisor_array = divisor_xas.diode
+    elif divisor == "PFY_SDD1":
+        divisor_array = divisor_xas.pfy_sdd1
+    elif divisor == "PFY_SDD2":
+        divisor_array = divisor_xas.pfy_sdd2
+    elif divisor == "PFY_SDD3":
+        divisor_array = divisor_xas.pfy_sdd3
+    elif divisor == "PFY_SDD4":
+        divisor_array = divisor_xas.pfy_sdd4
+    else:
+        return "Invalid divisor name"
+
+    normalized = np.array(dividend_array / divisor_array)
+    plt.figure()
+    plt.plot(dividend_xas.energy, normalized)
+    plt.title("Averaged %s / Blank Averaged %s" % (dividend, divisor))
     plt.show()
