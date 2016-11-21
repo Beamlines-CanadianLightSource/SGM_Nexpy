@@ -1,8 +1,6 @@
-import matplotlib.pyplot as plt
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import draw, show
+from cStringIO import StringIO
 import time
 
 def getMultiXAS(filename, range_start = None, range_end = None):
@@ -11,7 +9,7 @@ def getMultiXAS(filename, range_start = None, range_end = None):
    if range_start == None:
       range_start = 0
    if range_end == None:
-      range_end = len(SHM_DR_test11.NXentry)
+      range_end = len(filename.NXentry)
 
    multi_xas = MultiXAS()
 
@@ -479,7 +477,7 @@ def plot_avg_xas_all(bin_xas):
     plt.tight_layout()
     plt.show()
 
-def plot_division(xas, dividend, divisor):
+def plot_normalized(xas, dividend, divisor):
     dividend = dividend.upper()
     divisor = divisor.upper()
 
@@ -517,23 +515,24 @@ def plot_division(xas, dividend, divisor):
     else:
         return "Invalid divisor name"
 
-    division_array = np.array(dividend_array) / np.array(divisor_array)
+    normalized_array = np.array(dividend_array) / np.array(divisor_array)
     plt.figure()
-    plt.plot(xas.energy, division_array)
+    plt.plot(xas.energy, normalized_array)
     str_y_axis = StringIO()
     str_y_axis.write(dividend + ' / ' + divisor)
     plt.ylabel(str_y_axis.getvalue())
     plt.title("Averaged %s / Averaged %s" % (dividend, divisor))
     plt.show()
 
-    # export_data = ExportData()
-    # export_data.dividend = dividend
-    # export_data.dividend_array = dividend_array
-    # export_data.divisor = divisor
-    # export_data.divisor_array = divisor_array
+    export_data = ExportData()
+    export_data.dividend = dividend
+    export_data.divisor = divisor
+    export_data.mean_energy_array = xas.energy
+    export_data.normalized_array = normalized_array
+    return export_data
 
 
-def plot_normalize(dividend_xas, dividend, divisor_xas, divisor):
+def plot_normalized_carbon(dividend_xas, dividend, divisor_xas, divisor):
 
     if dividend == "I0" or dividend == "IO":
         dividend_array = dividend_xas.i0
@@ -569,8 +568,15 @@ def plot_normalize(dividend_xas, dividend, divisor_xas, divisor):
     else:
         return "Invalid divisor name"
 
-    normalized = np.array(dividend_array / divisor_array)
+    normalized_array = np.array(dividend_array / divisor_array)
     plt.figure()
-    plt.plot(dividend_xas.energy, normalized)
+    plt.plot(dividend_xas.energy, normalized_array)
     plt.title("Averaged %s / Blank Averaged %s" % (dividend, divisor))
     plt.show()
+
+    export_data = ExportData()
+    export_data.dividend = dividend
+    export_data.divisor = divisor
+    export_data.mean_energy_array = dividend_xas.energy
+    export_data.normalized_array = normalized_array
+    return export_data
