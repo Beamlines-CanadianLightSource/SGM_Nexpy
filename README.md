@@ -1,3 +1,8 @@
+#SGM_Nexpy Plugin
+
+### Plugin Installation
+#### Extract the SGMPy.zip file into $HOME\.nexpy\plugins on windows, or ~/.nexpy for Unix machines.
+
 # SGM_Nexpy
 
 ### Retrieve XAS c-scans data from a file and assign these data to a new attribute
@@ -35,3 +40,5 @@ export_data = plot_normalized(bin_xas, dividend = "PFY_SDD3", divisor = "I0")
 ### Export normalized data
 #### Save the processed data as plain text in the directory where people start their NeXpy
 export_normalized_data(export_data, filename = "test")
+
+
