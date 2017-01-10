@@ -115,18 +115,18 @@ class MultiXAS(XAS):
     # print (total_cscan_num)
 
     plt.figure()
+    print ("--- %s seconds ---" % (time.time() - start_time))
     # setup the size of figure
     # y_axis_height = total_cscan_num * 0.3
     # fig = plt.gcf()
     # fig.set_size_inches(14, y_axis_height, forward=True)
-
+    
     for i in range(0, total_cscan_num):
-        scan_num_list = np.empty(len(self.energy[i]))
+        scan_num_list = np.zeros(len(self.energy[i]))
         scan_num_list.fill(i + 1)
-        plt.scatter(self.energy[i][0:], scan_num_list, c=intensity[i][0:], s=140, linewidths=0, marker='s')
+        plt.scatter(self.energy[i][:], scan_num_list, c=intensity[i][:], s=140, linewidths=0, marker='s')
 
     print("--- %s seconds ---" % (time.time() - start_time))
-
     # add labels for x and y axis
     plt.xlabel('Incident Energy (eV)')
     plt.ylabel('Scan Index (Scan Number)')
@@ -134,7 +134,7 @@ class MultiXAS(XAS):
     plt.title("Summary Plot (Intensity: %s)" % (name))
     plt.grid()
     plt.show()
-    print("--- %s seconds ---" % (time.time() - start_time))
+    #print("--- %s seconds ---" % (time.time() - start_time))
 
 
 class SingleXAS(XAS):
@@ -256,9 +256,11 @@ def binned_xas (xas, start_energy, end_energy, bin_interval):
 
 
 def create_bins(start_energy, end_energy, bin_interval):
-
+    start_energy = int(start_energy + 1) 
+    end_energy = int(end_energy - 1)
     print ("Start creating bins")
     num_of_bins = int ((end_energy-start_energy) / bin_interval)
+    print num_of_bins
     num_of_edges = num_of_bins + 1
     # print ("Number of Bins:", num_of_bins)
     # print ("Number of Edges:", num_of_edges)
@@ -306,6 +308,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
     # interation to assign data into bins
     print ("Start assigning data points into bins")
     len_energy_array = len(energy_array)
+    print len_energy_array
     print("--- %s seconds ---" % (time.time() - start_time))
     for scan_index in range(0, len_energy_array):
         len_sub_energy_array = len(energy_array[scan_index])
@@ -314,7 +317,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
                 x = energy_array[scan_index][datapoint_index] - edges_array[0]
                 # get integer part and plus 1
                 assign_bin_num = int(x / bin_width) + 1
-                # print (assign_bin_num)
+                #print (assign_bin_num)
                 bin_array[assign_bin_num - 1].append([scan_index, datapoint_index])
 
                 # calculate the sum of scaler

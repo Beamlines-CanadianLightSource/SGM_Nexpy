@@ -5,7 +5,7 @@ import time
 
 def export_xas (xas, filename):
     cwd = os.getcwd()
-    export_file_path = cwd+"/"+filename+".xas"
+    export_file_path = filename
     print ("export to: " + export_file_path)
 
     with open(export_file_path, "w") as out_file:
