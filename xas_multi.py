@@ -227,7 +227,7 @@ class MultiXasDialog(BaseDialog):
 
     def plot_eems(self):
         self.xas = multi_xas.getMultiXAS(self.root, range_start = self.start, range_end = self.end)
-	multi_xas.eem(self.xas, self.sdd)
+        multi_xas.eem(self.xas, self.sdd)
         return self.xas
 
     @property
