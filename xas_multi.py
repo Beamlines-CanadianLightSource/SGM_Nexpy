@@ -3,7 +3,7 @@ from nexpy.gui.pyqt import QtGui
 from PyQt4.QtCore import *
 from nexpy.gui.datadialogs import BaseDialog, GridParameters
 from nexpy.gui.utils import report_error
-from nexusformat.nexus import nxload, NeXusError, NXentry, NXdata, NXroot, NXfield
+# from nexusformat.nexus import nxload, NeXusError, NXentry, NXdata, NXroot, NXfield
 from nexusformat.nexus.tree import * 
 from . import multi_xas, export_data
 
@@ -39,29 +39,46 @@ class MultiXasDialog(BaseDialog):
         self.pb_getsumplot.setObjectName("summary plot")
         self.pb_getsumplot.setText("Summary Plot")
 
+        self.pb_get_averaged = QtGui.QPushButton()
+        self.pb_get_averaged.setObjectName("interpolated & averaged plots")
+        self.pb_get_averaged.setText("Interpolated & Averaged Plots")
+
+        self.pb_get_normalized = QtGui.QPushButton()
+        self.pb_get_normalized.setObjectName("normalized data")
+        self.pb_get_normalized.setText("Normalized Data")
+
         self.bad_scans = QtGui.QLineEdit()
         self.bad_scans.setObjectName("Bad Scans")
 
         layout.addLayout(self.root_layout)
-        layout.addLayout(self.entry_num_layout)
-        layout.addLayout(self.other_entry_num_layout)
         layout.addLayout(self.select_sdd())
         layout.addWidget(self.pb_ploteems)
 
+        layout.addLayout(self.entry_num_layout)
+        layout.addLayout(self.other_entry_num_layout)
+
         layout.addLayout(self.select_abs())
+        layout.addWidget(self.pb_getsumplot)
+
         layout.addLayout(self.roi_peak_slider())
         layout.addLayout(self.roi_width_slider())
-        layout.addWidget(self.pb_getsumplot)
-        
+
         bad_scan_layout = QtGui.QHBoxLayout()
         bad_scan_layout.addWidget(QtGui.QLabel('Bad Scans : '))
         bad_scan_layout.addWidget(self.bad_scans)
         layout.addLayout(bad_scan_layout)
-        layout.addWidget(self.close_buttons())
+        layout.addWidget(self.pb_get_averaged)
+
+        layout.addLayout(self.select_normalization())
+        layout.addWidget(self.pb_get_normalized)
+
+        # layout.addWidget(self.close_buttons())
         
         self.setLayout(layout)
         self.pb_ploteems.clicked.connect(self.plot_eems)
         self.pb_getsumplot.clicked.connect(self.plot_sum)
+        self.pb_get_averaged.clicked.connect(self.plot_averaged_data)
+        self.pb_get_normalized.clicked.connect(self.plot_normalized_data)
         self.root_box.currentIndexChanged.connect(self.refresh_entry)
         self.set_title('Multi XAS')
    
@@ -119,7 +136,7 @@ class MultiXasDialog(BaseDialog):
     def sum_det(self):
         return self.select_abs_box.currentText()
 
-
+    # drop down menu to select detector
     def select_abs(self, text='Select Detector :'):
         layout = QtGui.QHBoxLayout()
         box = QtGui.QComboBox()
@@ -135,7 +152,8 @@ class MultiXasDialog(BaseDialog):
         layout.addWidget(box)
         layout.addStretch()
         return layout
-    
+
+    # drop down menu to select sdd
     def select_sdd(self, text='Select SDD :'):
         layout = QtGui.QHBoxLayout()
         box = QtGui.QComboBox()
@@ -149,6 +167,43 @@ class MultiXasDialog(BaseDialog):
 
         layout.addWidget(QtGui.QLabel(text))
         layout.addWidget(box)
+        layout.addStretch()
+        return layout
+
+    @property
+    def normalization_dividend(self):
+        return self.select_dividend_box.currentText()
+
+    @property
+    def normalization_divisor(self):
+        return self.select_divisor_box.currentText()
+
+    # drop down menu to select dividend and divisor
+    def select_normalization(self, text = 'Normalization: '):
+
+        layout = QtGui.QHBoxLayout()
+        # dividend
+        box = QtGui.QComboBox()
+        box.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
+        sdds = ['PFY_SDD1', 'PFY_SDD2','PFY_SDD3','PFY_SDD4']
+        for sdd in sorted(sdds):
+            box.addItem(sdd)
+
+        self.select_dividend_box = box
+        # self.select_abs_layout = layout
+
+        # divisor
+        box2 = QtGui.QComboBox()
+        box2.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
+        sdds2 = ['I0', 'TEY', 'DIODE']
+        for sdd2 in sorted(sdds2):
+            box2.addItem(sdd2)
+
+        self.select_divisor_box = box2
+
+        layout.addWidget(QtGui.QLabel(text))
+        layout.addWidget(box)
+        layout.addWidget(box2)
         layout.addStretch()
         return layout
 
@@ -223,12 +278,15 @@ class MultiXasDialog(BaseDialog):
         self.xas = multi_xas.getMultiXAS(self.root, range_start = self.start, range_end = self.end)
         self.xas.getpfy(self.roi_dn, self.roi_up)
         self.xas.summary_plot(self.sum_det)
-        return
+        # return
 
     def plot_eems(self):
         self.xas = multi_xas.getMultiXAS(self.root, range_start = self.start, range_end = self.end)
         multi_xas.eem(self.xas, self.sdd)
         return self.xas
+
+    def plot_averaged_data(self):
+        self.avg_xas()
 
     @property
     def start_en(self):
@@ -286,10 +344,21 @@ class MultiXasDialog(BaseDialog):
         self.tree.binned_data[scan_entry].data.axes = NXattr("energy")
         return 
 
-    def accept(self):
+    def plot_normalized_data(self):
+        energy, normalized_array = multi_xas.plot_normalized(self.bin_xas, dividend = self.normalization_dividend, divisor = self.normalization_divisor)
         try:
-           self.avg_xas()
-           super(MultiXasDialog, self).accept()
-        except NeXusError as error:
-           report_error("Multi XAS", error)
-           super(MultiXasDialog, self).reject()
+            scan_entry = "normalized"
+            self.tree.normalized_data = NXroot()
+            self.tree.normalized_data[scan_entry] = NXentry(NXdata())
+            self.tree.normalized_data[scan_entry].data.energy = NXfield(energy)
+            self.tree.normalized_data[scan_entry].data.normalized = NXfield(normalized_array)
+        except:
+            print ("Error occurred when exported normalized data into the file")
+
+    # def accept(self):
+    #     try:
+    #        self.avg_xas()
+    #        super(MultiXasDialog, self).accept()
+    #     except NeXusError as error:
+    #        report_error("Multi XAS", error)
+    #        super(MultiXasDialog, self).reject()

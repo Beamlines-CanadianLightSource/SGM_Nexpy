@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-# from cStringIO import StringIO
+from cStringIO import StringIO
 import time
 from nexpy.gui.plotview import NXPlotView
 # from matplotlib.figure import Figure
@@ -449,7 +449,7 @@ def plot_avg_xas_all(bin_xas):
     plotview = NXPlotView()
 
     plotview.setMinimumHeight(200)
-    plotview.resize(1600, 1000)
+    plotview.resize(1400, 800)
     plotview.figure.clf()
 
     en = bin_xas.energy
@@ -507,63 +507,77 @@ def plot_avg_xas_all(bin_xas):
 
     plt.tight_layout()
     plotview.figure = plt
+    plotview.tab_widget.removeTab(0)
+    plotview.tab_widget.removeTab(1)
     plotview.draw()
 
-# def plot_normalized(xas, dividend, divisor):
-#     dividend = dividend.upper()
-#     divisor = divisor.upper()
-#
-#     if dividend == "I0" or dividend == "IO":
-#         dividend_array = xas.i0
-#     elif dividend == "TEY":
-#         dividend_array = xas.tey
-#     elif dividend == "DIODE" or dividend == "PD1":
-#         dividend_array = xas.diode
-#     elif dividend == "PFY_SDD1":
-#         dividend_array = xas.pfy_sdd1
-#     elif dividend == "PFY_SDD2":
-#         dividend_array = xas.pfy_sdd2
-#     elif dividend == "PFY_SDD3":
-#         dividend_array = xas.pfy_sdd3
-#     elif dividend == "PFY_SDD4":
-#         dividend_array = xas.pfy_sdd4
-#     else:
-#         return "Invalid dividend name"
-#
-#     if divisor == "I0" or divisor == "IO":
-#         divisor_array = xas.i0
-#     elif divisor == "TEY":
-#         divisor_array = xas.tey
-#     elif divisor == "DIODE" or divisor == "PD1":
-#         divisor_array = xas.diode
-#     elif divisor == "PFY_SDD1":
-#         divisor_array = xas.pfy_sdd1
-#     elif divisor == "PFY_SDD2":
-#         divisor_array = xas.pfy_sdd2
-#     elif divisor == "PFY_SDD3":
-#         divisor_array = xas.pfy_sdd3
-#     elif divisor == "PFY_SDD4":
-#         divisor_array = xas.pfy_sdd4
-#     else:
-#         return "Invalid divisor name"
-#
-#     normalized_array = np.array(dividend_array) / np.array(divisor_array)
-#     plt.figure()
-#     plt.plot(xas.energy, normalized_array)
-#     str_y_axis = StringIO()
-#     str_y_axis.write(dividend + ' / ' + divisor)
-#     plt.ylabel(str_y_axis.getvalue())
-#     plt.title("Averaged %s / Averaged %s" % (dividend, divisor))
-#     plt.show()
-#
-#     export_data = ExportData()
-#     export_data.dividend = dividend
-#     export_data.divisor = divisor
-#     export_data.mean_energy_array = xas.energy
-#     export_data.normalized_array = normalized_array
-#     return export_data
-#
-#
+def plot_normalized(xas, dividend, divisor):
+
+    plotview = NXPlotView()
+
+    # convert the string to uppercase
+    dividend = dividend.upper()
+    divisor = divisor.upper()
+
+    if dividend == "I0"
+        dividend_array = xas.i0
+    elif dividend == "TEY":
+        dividend_array = xas.tey
+    elif dividend == "DIODE" or dividend == "PD1":
+        dividend_array = xas.diode
+    elif dividend == "PFY_SDD1":
+        dividend_array = xas.pfy_sdd1
+    elif dividend == "PFY_SDD2":
+        dividend_array = xas.pfy_sdd2
+    elif dividend == "PFY_SDD3":
+        dividend_array = xas.pfy_sdd3
+    elif dividend == "PFY_SDD4":
+        dividend_array = xas.pfy_sdd4
+    else:
+        return "Invalid dividend name"
+
+    if divisor == "I0"
+        divisor_array = xas.i0
+    elif divisor == "TEY":
+        divisor_array = xas.tey
+    elif divisor == "DIODE" or divisor == "PD1":
+        divisor_array = xas.diode
+    elif divisor == "PFY_SDD1":
+        divisor_array = xas.pfy_sdd1
+    elif divisor == "PFY_SDD2":
+        divisor_array = xas.pfy_sdd2
+    elif divisor == "PFY_SDD3":
+        divisor_array = xas.pfy_sdd3
+    elif divisor == "PFY_SDD4":
+        divisor_array = xas.pfy_sdd4
+    else:
+        return "Invalid divisor name"
+
+    normalized_array = np.array(dividend_array) / np.array(divisor_array)
+    # plt.figure()
+    # plt.plot(xas.energy, normalized_array)
+    # str_y_axis = StringIO()
+    # str_y_axis.write(dividend + ' / ' + divisor)
+    # plt.ylabel(str_y_axis.getvalue())
+    # plt.title("Averaged %s / Averaged %s" % (dividend, divisor))
+
+    plotview.figure.clf()
+    ax = plotview.figure.gca()
+    ax.axes.get_xaxis().set_visible(True)
+    ax.axes.get_yaxis().set_visible(True)
+
+    ax.plot(xas.energy, normalized_array)
+    ax.set_xlabel('Energy (eV)')
+    str_y_axis = StringIO()
+    str_y_axis.write(dividend + ' / ' + divisor)
+    ax.set_ylabel(str_y_axis.getvalue())
+    ax.set_title("Averaged %s / Averaged %s" % (dividend, divisor))
+
+    plotview.draw()
+
+    return xas.energy, normalized_array
+
+
 # def plot_normalized_carbon(dividend_xas, dividend, divisor_xas, divisor):
 #
 #     if dividend == "I0" or dividend == "IO":
