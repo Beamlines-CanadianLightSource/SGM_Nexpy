@@ -6,6 +6,7 @@ from nexpy.gui.utils import report_error
 # from nexusformat.nexus import nxload, NeXusError, NXentry, NXdata, NXroot, NXfield
 from nexusformat.nexus.tree import * 
 from . import multi_xas, export_data
+from customize_gui import QHLine
 
 def show_dialog(parent=None):
     try:
@@ -21,11 +22,16 @@ class MultiXasDialog(BaseDialog):
         
         super(MultiXasDialog, self).__init__(parent)
         layout = QtGui.QVBoxLayout()
+
+        self.h_line = QHLine()
+        self.h_line2 = QHLine()
+        self.h_line3 = QHLine()
        
         self.select_root(text='Select File :')
         self.select_entry_num(text='First Entry :')
         self.select_entry_num(text='Last Entry :', other='True')
         self.select_abs()
+        self.select_abs_2()
         self.select_sdd()
 
         self.roi_peak_slider()
@@ -40,8 +46,12 @@ class MultiXasDialog(BaseDialog):
         self.pb_getsumplot.setText("Summary Plot")
 
         self.pb_get_averaged = QtGui.QPushButton()
-        self.pb_get_averaged.setObjectName("interpolated & averaged plots")
-        self.pb_get_averaged.setText("Interpolated & Averaged Plots")
+        self.pb_get_averaged.setObjectName("interpolated plots")
+        self.pb_get_averaged.setText("Interpolated Plots")
+
+        self.pb_get_single_averaged = QtGui.QPushButton()
+        self.pb_get_single_averaged.setObjectName("single interpolated plot")
+        self.pb_get_single_averaged.setText("Single Interpolated Plot")
 
         self.pb_get_normalized = QtGui.QPushButton()
         self.pb_get_normalized.setObjectName("normalized data")
@@ -57,17 +67,23 @@ class MultiXasDialog(BaseDialog):
         layout.addLayout(self.entry_num_layout)
         layout.addLayout(self.other_entry_num_layout)
 
-        layout.addLayout(self.select_abs())
-        layout.addWidget(self.pb_getsumplot)
-
         layout.addLayout(self.roi_peak_slider())
         layout.addLayout(self.roi_width_slider())
+
+        layout.addLayout(self.select_abs())
+        layout.addWidget(self.pb_getsumplot)
+        layout.addWidget(self.h_line)
 
         bad_scan_layout = QtGui.QHBoxLayout()
         bad_scan_layout.addWidget(QtGui.QLabel('Bad Scans : '))
         bad_scan_layout.addWidget(self.bad_scans)
         layout.addLayout(bad_scan_layout)
         layout.addWidget(self.pb_get_averaged)
+        layout.addWidget(self.h_line2)
+
+        layout.addLayout(self.select_abs_2())
+        layout.addWidget(self.pb_get_single_averaged)
+        layout.addWidget(self.h_line3)
 
         layout.addLayout(self.select_normalization())
         layout.addWidget(self.pb_get_normalized)
@@ -78,6 +94,7 @@ class MultiXasDialog(BaseDialog):
         self.pb_ploteems.clicked.connect(self.plot_eems)
         self.pb_getsumplot.clicked.connect(self.plot_sum)
         self.pb_get_averaged.clicked.connect(self.plot_averaged_data)
+        self.pb_get_single_averaged.clicked.connect(self.plot_single_averaged_data)
         self.pb_get_normalized.clicked.connect(self.plot_normalized_data)
         self.root_box.currentIndexChanged.connect(self.refresh_entry)
         self.set_title('Multi XAS')
@@ -136,7 +153,11 @@ class MultiXasDialog(BaseDialog):
     def sum_det(self):
         return self.select_abs_box.currentText()
 
-    # drop down menu to select detector
+    @property
+    def binned_det(self):
+        return self.select_abs_2_box.currentText()
+
+    # drop down menu to select detector for summary plot
     def select_abs(self, text='Select Detector :'):
         layout = QtGui.QHBoxLayout()
         box = QtGui.QComboBox()
@@ -147,6 +168,23 @@ class MultiXasDialog(BaseDialog):
         
         self.select_abs_box = box
         self.select_abs_layout = layout
+
+        layout.addWidget(QtGui.QLabel(text))
+        layout.addWidget(box)
+        layout.addStretch()
+        return layout
+
+    # drop down menu to select detector for binned data
+    def select_abs_2(self, text='Select Detector :'):
+        layout = QtGui.QHBoxLayout()
+        box = QtGui.QComboBox()
+        box.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
+        sdds = ['TEY', 'I0', 'DIODE', 'PFY_SDD1', 'PFY_SDD2', 'PFY_SDD3', 'PFY_SDD4']
+        for sdd in sorted(sdds):
+            box.addItem(sdd)
+
+        self.select_abs_2_box = box
+        self.select_abs_2_layout = layout
 
         layout.addWidget(QtGui.QLabel(text))
         layout.addWidget(box)
@@ -287,6 +325,9 @@ class MultiXasDialog(BaseDialog):
 
     def plot_averaged_data(self):
         self.avg_xas()
+
+    def plot_single_averaged_data(self):
+        multi_xas.plot_avg_xas_single(self.bin_xas, self.binned_det)
 
     @property
     def start_en(self):

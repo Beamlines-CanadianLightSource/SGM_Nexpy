@@ -511,6 +511,39 @@ def plot_avg_xas_all(bin_xas):
     plotview.tab_widget.removeTab(1)
     plotview.draw()
 
+
+def plot_avg_xas_single(bin_xas, detector):
+
+    plotview = NXPlotView()
+
+    if detector == "I0":
+        y_array = bin_xas.i0
+    elif detector == "TEY":
+        y_array = bin_xas.tey
+    elif detector == "DIODE" or detector == "PD1":
+        y_array = bin_xas.diode
+    elif detector == "PFY_SDD1":
+        y_array = bin_xas.pfy_sdd1
+    elif detector == "PFY_SDD2":
+        y_array = bin_xas.pfy_sdd2
+    elif detector == "PFY_SDD3":
+        y_array = bin_xas.pfy_sdd3
+    elif detector == "PFY_SDD4":
+        y_array = bin_xas.pfy_sdd4
+    else:
+        return "Invalid dividend name"
+
+    plotview.figure.clf()
+    ax = plotview.figure.gca()
+    ax.axes.get_xaxis().set_visible(True)
+    ax.axes.get_yaxis().set_visible(True)
+
+    ax.plot(bin_xas.energy, y_array)
+    ax.set_xlabel('Energy (eV)')
+    ax.set_ylabel(detector)
+    plotview.draw()
+
+
 def plot_normalized(xas, dividend, divisor):
 
     plotview = NXPlotView()
@@ -519,7 +552,7 @@ def plot_normalized(xas, dividend, divisor):
     dividend = dividend.upper()
     divisor = divisor.upper()
 
-    if dividend == "I0"
+    if dividend == "I0":
         dividend_array = xas.i0
     elif dividend == "TEY":
         dividend_array = xas.tey
@@ -536,7 +569,7 @@ def plot_normalized(xas, dividend, divisor):
     else:
         return "Invalid dividend name"
 
-    if divisor == "I0"
+    if divisor == "I0":
         divisor_array = xas.i0
     elif divisor == "TEY":
         divisor_array = xas.tey
