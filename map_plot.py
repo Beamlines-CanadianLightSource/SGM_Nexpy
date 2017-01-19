@@ -95,7 +95,7 @@ class MapDialog(BaseDialog):
         lab_axis2_layout.addWidget(self.axis2_combo)
         lab_axis2_layout.addStretch()
 
-        self.set_layout(self.entry_layout, lab_sig_layout, lab_axis1_layout,  
+        self.set_layout(self.entry_layout, lab_sig_layout, lab_axis1_layout,
                             lab_axis2_layout, roi_peak_layout, roi_width_layout, self.close_buttons())
         self.set_title('Convert to 2D map')
 
