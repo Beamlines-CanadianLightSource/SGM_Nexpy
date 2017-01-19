@@ -23,7 +23,7 @@ def getMultiXAS(filename, range_start = None, range_end = None):
    multi_xas.sdd3 = []
    multi_xas.sdd4 = []
 
-   for i in range (range_start, range_end):
+   for i in range (range_end):
       command = filename.NXentry[i].command
       if str(command).split(" ")[0] == "cscan":
          multi_xas.scan_number.append(str(filename.NXentry[i]).split(":")[1])
