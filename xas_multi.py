@@ -67,7 +67,7 @@ class MultiXasDialog(BaseDialog):
    
     @property
     def start(self):
-        return int(self.entry_num_box.currentText()) - 1 
+        return int(self.entry_num_box.currentText()) 
 
     @property
     def end(self):
@@ -247,7 +247,7 @@ class MultiXasDialog(BaseDialog):
         good_xas = multi_xas.get_good_scan(self.xas, ban_scan_list = [self.bad_scan_list])
         self.bin_xas = multi_xas.binned_xas(good_xas, start_energy = self.start_en, end_energy = self.end_en, bin_interval = 0.1)
         multi_xas.plot_avg_xas_all(self.bin_xas)
-        scan_entry = 'scans' + '_' + str(self.start) + '-' + str(self.end)
+        scan_entry = str(self.root) + '_' + 'scans' + '_' + str(self.start) + '_' + str(self.end)
         try:
             self.tree.binned_data = NXroot()
             self.tree.binned_data[scan_entry] = NXentry(NXdata())
