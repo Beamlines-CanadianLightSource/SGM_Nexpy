@@ -25,6 +25,7 @@ class MultiXasDialog(BaseDialog):
 
         self.h_line = QHLine()
         self.h_line2 = QHLine()
+        self.h_line3 = QHLine()
        
         self.select_root(text='Select File :')
         self.select_entry_num(text='First Entry :')
@@ -38,7 +39,7 @@ class MultiXasDialog(BaseDialog):
         self.pb_ploteems = QtGui.QPushButton()
         self.pb_ploteems.setObjectName("plot eems")
         self.pb_ploteems.setText("Plot EEMS")
-        
+
         self.pb_getsumplot = QtGui.QPushButton()
         self.pb_getsumplot.setObjectName("summary plot")
         self.pb_getsumplot.setText("Summary Plot")
@@ -61,6 +62,7 @@ class MultiXasDialog(BaseDialog):
         layout.addLayout(self.root_layout)
         layout.addLayout(self.select_sdd())
         layout.addWidget(self.pb_ploteems)
+        layout.addWidget(self.h_line)
 
         layout.addLayout(self.entry_num_layout)
         layout.addLayout(self.other_entry_num_layout)
@@ -70,14 +72,14 @@ class MultiXasDialog(BaseDialog):
 
         layout.addLayout(self.select_abs())
         layout.addWidget(self.pb_getsumplot)
-        layout.addWidget(self.h_line)
+        layout.addWidget(self.h_line2)
 
         bad_scan_layout = QtGui.QHBoxLayout()
         bad_scan_layout.addWidget(QtGui.QLabel('Bad Scans : '))
         bad_scan_layout.addWidget(self.bad_scans)
         layout.addLayout(bad_scan_layout)
         layout.addWidget(self.pb_get_averaged)
-        layout.addWidget(self.h_line2)
+        layout.addWidget(self.h_line3)
 
         layout.addLayout(self.select_normalization())
         layout.addWidget(self.pb_get_normalized)
@@ -154,7 +156,8 @@ class MultiXasDialog(BaseDialog):
         sdds = ['TEY', 'I0', 'DIODE','PFY_SDD1', 'PFY_SDD2','PFY_SDD3','PFY_SDD4']
         for sdd in sorted(sdds):
             box.addItem(sdd)
-        
+
+        box.setCurrentIndex(2)
         self.select_abs_box = box
         self.select_abs_layout = layout
 
@@ -209,6 +212,7 @@ class MultiXasDialog(BaseDialog):
         for sdd2 in sorted(sdds2):
             box2.addItem(sdd2)
 
+        box2.setCurrentIndex(1)
         self.select_divisor_box = box2
 
         layout.addWidget(QtGui.QLabel(text))
