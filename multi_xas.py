@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from cStringIO import StringIO
 import time
+from nexpy.gui.plotview import NXPlotView
+# from matplotlib.figure import Figure
 
 def getMultiXAS(filename, range_start = None, range_end = None):
 
@@ -93,7 +95,6 @@ class MultiXAS(XAS):
    def summary_plot(self, name):
     start_time = time.time()
     # matplotlib.rcParams['figure.figsize'] = (13, 10)
-    # plt.close('all')
 
     name = name.upper()
     if name == "TEY":
@@ -116,27 +117,50 @@ class MultiXAS(XAS):
     total_cscan_num = len(self.energy)
     # print (total_cscan_num)
 
-    plt.figure()
-    print ("--- %s seconds ---" % (time.time() - start_time))
+    # show the plot in Nexpy, similar to figure.show()
+    plotview = NXPlotView()
+
     # setup the size of figure
-    # y_axis_height = total_cscan_num * 0.3
-    # fig = plt.gcf()
-    # fig.set_size_inches(14, y_axis_height, forward=True)
+    plotview.setMinimumHeight(200)
+    if total_cscan_num > 10:
+        ratio = total_cscan_num / 10
+    else:
+        ratio = 1
+    plotview.resize(700, 280*ratio)
+    plotview.figure.clf()
+
+    # setup axis
+    ax = plotview.figure.gca()
+    ax.axes.get_xaxis().set_visible(True)
+    ax.axes.get_yaxis().set_visible(True)
     
-    for i in range(0, total_cscan_num):
+    print ("--- %s seconds ---" % (time.time() - start_time))
+
+    energy_tuple = np.array(self.energy[0][:])
+    intensity_tuple = np.array(intensity[0][:])
+    scan_num_tuple = np.zeros(len(self.energy[0]))
+    scan_num_tuple.fill(1)
+
+    for i in range(1, total_cscan_num):
         scan_num_list = np.zeros(len(self.energy[i]))
         scan_num_list.fill(i + 1)
-        plt.scatter(self.energy[i][:], scan_num_list, c=intensity[i][:], s=140, linewidths=0, marker='s')
+        scan_num_tuple = np.concatenate([scan_num_tuple, scan_num_list])
+        energy_tuple = np.concatenate([energy_tuple, np.array(self.energy[i][:])])
+        intensity_tuple = np.concatenate([intensity_tuple, np.array(intensity[i][:])])
+        #plt.scatter(self.energy[i][:], scan_num_list, c=intensity[i][:], s=140, linewidths=0, marker='s')
 
-    print("--- %s seconds ---" % (time.time() - start_time))
-    # add labels for x and y axis
-    plt.xlabel('Incident Energy (eV)')
-    plt.ylabel('Scan Index (Scan Number)')
+    # print("--- %s seconds ---" % (time.time() - start_time))
+    ax.scatter(energy_tuple, scan_num_tuple, c=intensity_tuple, s=140, linewidths=0, marker='s')
     # add title of the figure
-    plt.title("Summary Plot (Intensity: %s)" % (name))
-    plt.grid()
-    plt.show()
-    #print("--- %s seconds ---" % (time.time() - start_time))
+    ax.set_title("Summary Plot (Intensity: %s)" % (name))
+    # add labels for x and y axis
+    ax.set_xlabel('Incident Energy(eV)')
+    ax.set_ylabel('Scan Index (Scan Number)')
+    ax.set_ylim(ymin=0, ymax= total_cscan_num + 1)
+
+    plotview.grid(True)
+    plotview.draw()
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 
 class SingleXAS(XAS):
@@ -149,7 +173,6 @@ def eem(multi_xas, name, scan_num=None):
     start_time = time.time()
 
     # matplotlib.rcParams['figure.figsize'] = (14, 10)
-    # plt.close('all')
 
     if scan_num == None:
       scan_num = 0
@@ -189,16 +212,19 @@ def eem(multi_xas, name, scan_num=None):
     # print ("v_max: ", v_max)
 
     intensity = np.array(intensity)
-    plt.figure()
+    plotview = NXPlotView()
+    plotview.figure.clf()
+    ax = plotview.figure.gca()
+    ax.axes.get_xaxis().set_visible(True)
+    ax.axes.get_yaxis().set_visible(True)
     # print("--- %s seconds ---" % (time.time() - start_time))
-    plt.scatter(bin_num_for_x, bin_num_for_y, c=intensity, s=7, linewidths=0, vmax=v_max, vmin=0)
+    ax.scatter(bin_num_for_x, bin_num_for_y, c=intensity, s=7, linewidths=0, vmax=v_max, vmin=0)
     print("--- %s seconds ---" % (time.time() - start_time))
-    plt.yticks(np.arange(100, 2560, 100.0))
-    plt.xlabel('Incident Energy (eV)')
-    plt.ylabel('Emission Energy (eV)')
-    plt.title("Excitation Emission Matrix")
-    plt.grid()
-    plt.show()
+    ax.set_xlabel('Incident Energy (eV)')
+    ax.set_ylabel('Emission Energy (eV)')
+    ax.set_title("Excitation Emission Matrix")
+    plotview.grid()
+    plotview.draw()
     print("--- %s seconds ---" % (time.time() - start_time))
 
 def get_good_scan(multi_xas, ban_scan_list):
@@ -420,8 +446,13 @@ def plot_avg_xas_all(bin_xas):
     :return: None
     """
     print ("Plotting average XAS.")
-    # plt.close('all')
     # matplotlib.rcParams['figure.figsize'] = (14, 22)
+
+    plotview = NXPlotView()
+
+    plotview.setMinimumHeight(200)
+    plotview.resize(1400, 800)
+    plotview.figure.clf()
 
     en = bin_xas.energy
     i0 = bin_xas.i0
@@ -432,15 +463,12 @@ def plot_avg_xas_all(bin_xas):
     pfy_sdd3 = bin_xas.pfy_sdd3
     pfy_sdd4 = bin_xas.pfy_sdd4
 
-    plt.figure()
-    fig = plt.gcf()
-    fig.set_size_inches(22, 10, forward=True)
-
     plt.subplot(2, 4, 1)
     plt.plot(en, tey)
     # add lable for x and y axis
     plt.xlabel('Energy (eV)')
     plt.ylabel('TEY')
+    # add title of the figure
     plt.title('Binned(Averaged) TEY')
 
     plt.subplot(2, 4, 2)
@@ -480,13 +508,53 @@ def plot_avg_xas_all(bin_xas):
     plt.title('Binned(Averaged) PFY_SDD4')
 
     plt.tight_layout()
-    plt.show()
+    plotview.figure = plt
+    plotview.tab_widget.removeTab(0)
+    plotview.tab_widget.removeTab(1)
+    plotview.draw()
+
+
+def plot_avg_xas_single(bin_xas, detector):
+
+    plotview = NXPlotView()
+
+    if detector == "I0":
+        y_array = bin_xas.i0
+    elif detector == "TEY":
+        y_array = bin_xas.tey
+    elif detector == "DIODE" or detector == "PD1":
+        y_array = bin_xas.diode
+    elif detector == "PFY_SDD1":
+        y_array = bin_xas.pfy_sdd1
+    elif detector == "PFY_SDD2":
+        y_array = bin_xas.pfy_sdd2
+    elif detector == "PFY_SDD3":
+        y_array = bin_xas.pfy_sdd3
+    elif detector == "PFY_SDD4":
+        y_array = bin_xas.pfy_sdd4
+    else:
+        return "Invalid dividend name"
+
+    plotview.figure.clf()
+    ax = plotview.figure.gca()
+    ax.axes.get_xaxis().set_visible(True)
+    ax.axes.get_yaxis().set_visible(True)
+
+    ax.plot(bin_xas.energy, y_array)
+    ax.set_xlabel('Energy (eV)')
+    ax.set_ylabel(detector)
+    plotview.draw()
+
 
 def plot_normalized(xas, dividend, divisor):
+
+    plotview = NXPlotView()
+
+    # convert the string to uppercase
     dividend = dividend.upper()
     divisor = divisor.upper()
 
-    if dividend == "I0" or dividend == "IO":
+    if dividend == "I0":
         dividend_array = xas.i0
     elif dividend == "TEY":
         dividend_array = xas.tey
@@ -503,7 +571,7 @@ def plot_normalized(xas, dividend, divisor):
     else:
         return "Invalid dividend name"
 
-    if divisor == "I0" or divisor == "IO":
+    if divisor == "I0":
         divisor_array = xas.i0
     elif divisor == "TEY":
         divisor_array = xas.tey
@@ -521,67 +589,75 @@ def plot_normalized(xas, dividend, divisor):
         return "Invalid divisor name"
 
     normalized_array = np.array(dividend_array) / np.array(divisor_array)
-    plt.figure()
-    plt.plot(xas.energy, normalized_array)
+    # plt.figure()
+    # plt.plot(xas.energy, normalized_array)
+    # str_y_axis = StringIO()
+    # str_y_axis.write(dividend + ' / ' + divisor)
+    # plt.ylabel(str_y_axis.getvalue())
+    # plt.title("Averaged %s / Averaged %s" % (dividend, divisor))
+
+    plotview.figure.clf()
+    ax = plotview.figure.gca()
+    ax.axes.get_xaxis().set_visible(True)
+    ax.axes.get_yaxis().set_visible(True)
+
+    ax.plot(xas.energy, normalized_array)
+    ax.set_xlabel('Energy (eV)')
     str_y_axis = StringIO()
     str_y_axis.write(dividend + ' / ' + divisor)
-    plt.ylabel(str_y_axis.getvalue())
-    plt.title("Averaged %s / Averaged %s" % (dividend, divisor))
-    plt.show()
+    ax.set_ylabel(str_y_axis.getvalue())
+    ax.set_title("Averaged %s / Averaged %s" % (dividend, divisor))
 
-    export_data = ExportData()
-    export_data.dividend = dividend
-    export_data.divisor = divisor
-    export_data.mean_energy_array = xas.energy
-    export_data.normalized_array = normalized_array
-    return export_data
+    plotview.draw()
+
+    return xas.energy, normalized_array
 
 
-def plot_normalized_carbon(dividend_xas, dividend, divisor_xas, divisor):
-
-    if dividend == "I0" or dividend == "IO":
-        dividend_array = dividend_xas.i0
-    elif dividend == "TEY":
-        dividend_array = dividend_xas.tey
-    elif dividend == "DIODE" or dividend == "PD1":
-        dividend_array = dividend_xas.diode
-    elif dividend == "PFY_SDD1":
-        dividend_array = dividend_xas.pfy_sdd1
-    elif dividend == "PFY_SDD2":
-        dividend_array = dividend_xas.pfy_sdd2
-    elif dividend == "PFY_SDD3":
-        dividend_array = dividend_xas.pfy_sdd3
-    elif dividend == "PFY_SDD4":
-        dividend_array = dividend_xas.pfy_sdd4
-    else:
-        return "Invalid dividend name"
-
-    if divisor == "I0" or divisor == "IO":
-        divisor_array = divisor_xas.i0
-    elif divisor == "TEY":
-        divisor_array = divisor_xas.tey
-    elif divisor == "DIODE" or divisor == "PD1":
-        divisor_array = divisor_xas.diode
-    elif divisor == "PFY_SDD1":
-        divisor_array = divisor_xas.pfy_sdd1
-    elif divisor == "PFY_SDD2":
-        divisor_array = divisor_xas.pfy_sdd2
-    elif divisor == "PFY_SDD3":
-        divisor_array = divisor_xas.pfy_sdd3
-    elif divisor == "PFY_SDD4":
-        divisor_array = divisor_xas.pfy_sdd4
-    else:
-        return "Invalid divisor name"
-
-    normalized_array = np.array(dividend_array / divisor_array)
-    plt.figure()
-    plt.plot(dividend_xas.energy, normalized_array)
-    plt.title("Averaged %s / Blank Averaged %s" % (dividend, divisor))
-    plt.show()
-
-    export_data = ExportData()
-    export_data.dividend = dividend
-    export_data.divisor = divisor
-    export_data.mean_energy_array = dividend_xas.energy
-    export_data.normalized_array = normalized_array
-    return export_data
+# def plot_normalized_carbon(dividend_xas, dividend, divisor_xas, divisor):
+#
+#     if dividend == "I0" or dividend == "IO":
+#         dividend_array = dividend_xas.i0
+#     elif dividend == "TEY":
+#         dividend_array = dividend_xas.tey
+#     elif dividend == "DIODE" or dividend == "PD1":
+#         dividend_array = dividend_xas.diode
+#     elif dividend == "PFY_SDD1":
+#         dividend_array = dividend_xas.pfy_sdd1
+#     elif dividend == "PFY_SDD2":
+#         dividend_array = dividend_xas.pfy_sdd2
+#     elif dividend == "PFY_SDD3":
+#         dividend_array = dividend_xas.pfy_sdd3
+#     elif dividend == "PFY_SDD4":
+#         dividend_array = dividend_xas.pfy_sdd4
+#     else:
+#         return "Invalid dividend name"
+#
+#     if divisor == "I0" or divisor == "IO":
+#         divisor_array = divisor_xas.i0
+#     elif divisor == "TEY":
+#         divisor_array = divisor_xas.tey
+#     elif divisor == "DIODE" or divisor == "PD1":
+#         divisor_array = divisor_xas.diode
+#     elif divisor == "PFY_SDD1":
+#         divisor_array = divisor_xas.pfy_sdd1
+#     elif divisor == "PFY_SDD2":
+#         divisor_array = divisor_xas.pfy_sdd2
+#     elif divisor == "PFY_SDD3":
+#         divisor_array = divisor_xas.pfy_sdd3
+#     elif divisor == "PFY_SDD4":
+#         divisor_array = divisor_xas.pfy_sdd4
+#     else:
+#         return "Invalid divisor name"
+#
+#     normalized_array = np.array(dividend_array / divisor_array)
+#     plt.figure()
+#     plt.plot(dividend_xas.energy, normalized_array)
+#     plt.title("Averaged %s / Blank Averaged %s" % (dividend, divisor))
+#     plt.show()
+#
+#     export_data = ExportData()
+#     export_data.dividend = dividend
+#     export_data.divisor = divisor
+#     export_data.mean_energy_array = dividend_xas.energy
+#     export_data.normalized_array = normalized_array
+#     return export_data
