@@ -103,7 +103,7 @@ class MultiXasDialog(BaseDialog):
         return int(self.other_entry_num_box.currentText()) 
 
     @property
-    def bad_scan_list(self):
+    def bad_scan_str(self):
         return self.bad_scans.text()
 
     @property
@@ -318,9 +318,9 @@ class MultiXasDialog(BaseDialog):
     def avg_xas(self):
         self.xas = multi_xas.getMultiXAS(self.root, range_start = self.start, range_end = self.end)
         self.xas.getpfy(self.roi_dn, self.roi_up)
-        print self.bad_scan_list
-        good_xas = multi_xas.get_good_scan(self.xas, ban_scan_list = [self.bad_scan_list])
-        self.bin_xas = multi_xas.binned_xas(good_xas, start_energy = self.start_en, end_energy = self.end_en, bin_interval = 0.1)
+        print self.bad_scan_str
+        good_xas = multi_xas.get_good_scan(self.xas, bad_scan_string=self.bad_scan_str)
+        self.bin_xas = multi_xas.binned_xas(good_xas, start_energy=self.start_en, end_energy=self.end_en,bin_interval=0.1)
         multi_xas.plot_avg_xas_all(self.bin_xas)
         scan_entry = str(self.root) + '_' + 'scans' + '_' + str(self.start) + '_' + str(self.end)
         try:
