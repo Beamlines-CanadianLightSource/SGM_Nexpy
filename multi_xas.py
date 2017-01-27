@@ -133,7 +133,7 @@ class MultiXAS(XAS):
     ax = plotview.figure.gca()
     ax.axes.get_xaxis().set_visible(True)
     ax.axes.get_yaxis().set_visible(True)
-    
+
     print ("--- %s seconds ---" % (time.time() - start_time))
 
     energy_tuple = np.array(self.energy[0][:])
@@ -227,18 +227,20 @@ def eem(multi_xas, name, scan_num=None):
     plotview.draw()
     print("--- %s seconds ---" % (time.time() - start_time))
 
-def get_good_scan(multi_xas, ban_scan_list):
+def get_good_scan(multi_xas, bad_scan_string):
+    bad_scan_list = [x.strip() for x in bad_scan_string.split(',')]
+    print (bad_scan_list)
     scan_num_list = multi_xas.scan_number
     length = len(scan_num_list)
     # good_scan_list = []
     good_scan_index = range(0, length, 1)
     good_scan_list = multi_xas.scan_number[:]
     for i in range (length):
-        for j in range(len(ban_scan_list)):
+        for j in range(len(bad_scan_list)):
             # print ("i: " + str(i))
             # print ("j: " + str(j))
-            if scan_num_list[i] == 'entry'+ str(ban_scan_list[j]):
-                good_scan_list.remove('entry'+ str(ban_scan_list[j]))
+            if scan_num_list[i] == 'entry'+ str(bad_scan_list[j]):
+                good_scan_list.remove('entry'+ str(bad_scan_list[j]))
                 good_scan_index.remove(i)
     print (good_scan_list)
     print (good_scan_index)
@@ -284,7 +286,7 @@ def binned_xas (xas, start_energy, end_energy, bin_interval):
 
 
 def create_bins(start_energy, end_energy, bin_interval):
-    start_energy = int(start_energy + 1) 
+    start_energy = int(start_energy + 1)
     end_energy = int(end_energy - 1)
     print ("Start creating bins")
     num_of_bins = int ((end_energy-start_energy) / bin_interval)
@@ -510,7 +512,7 @@ def plot_avg_xas_all(bin_xas):
     plt.tight_layout()
     plotview.figure = plt
     plotview.tab_widget.removeTab(0)
-    plotview.tab_widget.removeTab(1)
+    plotview.tab_widget.removeTab(0)
     plotview.draw()
 
 
