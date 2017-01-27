@@ -271,7 +271,7 @@ def get_good_scan_data(multi_xas, good_scan_index, good_scan_list):
         good_xas.energy.append(np.array(multi_xas.energy[good_scan_index[i]]))
         good_xas.tey.append(np.array(multi_xas.tey[good_scan_index[i]]))
         good_xas.i0.append (np.array(multi_xas.i0[good_scan_index[i]]))
-        good_xas.diode.append(np.array(multi_xas.tey[good_scan_index[i]]))
+        good_xas.diode.append(np.array(multi_xas.diode[good_scan_index[i]]))
         good_xas.pfy_sdd1.append(np.array(multi_xas.pfy_sdd1[good_scan_index[i]]))
         good_xas.pfy_sdd2.append(np.array(multi_xas.pfy_sdd2[good_scan_index[i]]))
         good_xas.pfy_sdd3.append(np.array(multi_xas.pfy_sdd3[good_scan_index[i]]))
