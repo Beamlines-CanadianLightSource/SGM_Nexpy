@@ -225,6 +225,7 @@ class MapDialog(BaseDialog):
         plt.figure()
         plt.contourf(X,Y,Z)
         plt.gca().invert_yaxis()
+        plt.gca().invert_xaxis()
         plt.xlabel('x (mm)')
         plt.ylabel('y (mm)')
         plt.title("2D Contour Map")
