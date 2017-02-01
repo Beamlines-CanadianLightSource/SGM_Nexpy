@@ -5,8 +5,8 @@ import time
 from nexpy.gui.plotview import NXPlotView
 # from matplotlib.figure import Figure
 
-def getMultiXAS(filename, range_start = None, range_end = None):
 
+def getMultiXAS(filename, range_start = None, range_end = None):
 
    if range_start == None:
       range_start = 0
