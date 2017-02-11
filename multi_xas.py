@@ -314,6 +314,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
     start_time = time.time()
     energy_array = xas.energy
     # Initial 3 arrays for each scaler
+    temp_tey_bin_array = np.zeros(num_of_bins)
     tey_bin_array = np.zeros(num_of_bins)
     i0_bin_array = np.zeros(num_of_bins)
     diode_bin_array = np.zeros(num_of_bins)
@@ -331,16 +332,19 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
     pfy_sdd3_array = np.array(xas.pfy_sdd3)
     pfy_sdd4_array = np.array(xas.pfy_sdd4)
 
+    total_scan_num = len(energy_array)
+    print total_scan_num
+
     bin_array = [[] for i in range(num_of_bins)]
+    temp_bin_array = [[[] for i in range(num_of_bins)] for j in range(total_scan_num)]
     bin_width = (edges_array[-1] - edges_array[0]) / num_of_bins
     # print ("The width of a bin is:", bin_width)
+    print("--- %s seconds ---" % (time.time() - start_time))
 
     # interation to assign data into bins
     print ("Start assigning data points into bins")
-    len_energy_array = len(energy_array)
-    print len_energy_array
-    print("--- %s seconds ---" % (time.time() - start_time))
-    for scan_index in range(0, len_energy_array):
+
+    for scan_index in range(0, total_scan_num):
         len_sub_energy_array = len(energy_array[scan_index])
         for datapoint_index in range(0, len_sub_energy_array):
             if energy_array[scan_index][datapoint_index] <= edges_array[-1]:
@@ -349,9 +353,10 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
                 assign_bin_num = int(x / bin_width) + 1
                 #print (assign_bin_num)
                 bin_array[assign_bin_num - 1].append([scan_index, datapoint_index])
+                temp_bin_array[scan_index][assign_bin_num - 1].append(datapoint_index)
 
                 # calculate the sum of scaler
-                tey_bin_array[assign_bin_num - 1] = tey_bin_array[assign_bin_num - 1] + tey_array[scan_index][datapoint_index]
+                # tey_bin_array[assign_bin_num - 1] = tey_bin_array[assign_bin_num - 1] + tey_array[scan_index][datapoint_index]
                 i0_bin_array[assign_bin_num - 1] = i0_bin_array[assign_bin_num - 1] + i0_array[scan_index][datapoint_index]
                 diode_bin_array[assign_bin_num - 1] = diode_bin_array[assign_bin_num - 1] + diode_array[scan_index][datapoint_index]
 
@@ -361,7 +366,20 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
                 pfy_sdd3_bin_array[assign_bin_num - 1] = pfy_sdd3_bin_array[assign_bin_num - 1] + pfy_sdd3_array[scan_index][datapoint_index]
                 pfy_sdd4_bin_array[assign_bin_num - 1] = pfy_sdd4_bin_array[assign_bin_num - 1] + pfy_sdd4_array[scan_index][datapoint_index]
 
+        print ("Scan: ",scan_index)
+        for bin_num in range (0, num_of_bins):
+            counts = len(temp_bin_array[scan_index][bin_num])
+            temp_sum = 0
+            for i in range(0, counts):
+                temp_sum = temp_sum + tey_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
+            temp_avg = temp_sum / counts
+            print ("sum: ", temp_sum)
+            print ("counts: ", counts)
+            print ("temp avg: ",temp_avg)
+            temp_tey_bin_array[bin_num] = temp_tey_bin_array[bin_num] + temp_avg
+
     print("--- %s seconds ---" % (time.time() - start_time))
+    print (temp_tey_bin_array)
 
     # Calculate average
     empty_bins = 0
@@ -375,8 +393,9 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
             empty_bins = empty_bins + 1
             print ("No data point is in Bin No."+ str(index + 1) + ". Average calculation is not necessary")
         else:
-
-            tey_bin_array[index] = tey_bin_array[index] / total_data_point
+            # print (temp_tey_bin_array[index])
+            # print (total_scan_num)
+            temp_tey_bin_array[index] = temp_tey_bin_array[index] / total_scan_num
             i0_bin_array[index] = i0_bin_array[index] / total_data_point
             diode_bin_array[index] = diode_bin_array[index] / total_data_point
             pfy_sdd1_bin_array[index] = pfy_sdd1_bin_array[index] / total_data_point
@@ -396,7 +415,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
         if empty_bin_front != 0 and empty_bin_back == 0:
             bin_xas = MultiXAS()
             bin_xas.energy = mean_energy_array[empty_bin_front:]
-            bin_xas.tey = tey_bin_array[empty_bin_front:]
+            bin_xas.tey = temp_tey_bin_array[empty_bin_front:]
             bin_xas.i0 = i0_bin_array[empty_bin_front:]
             bin_xas.diode = diode_bin_array[empty_bin_front:]
             bin_xas.pfy_sdd1 = pfy_sdd1_bin_array[empty_bin_front:]
@@ -407,7 +426,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
         elif empty_bin_front == 0 and empty_bin_back != 0:
             bin_xas = MultiXAS()
             bin_xas.energy = mean_energy_array[:-empty_bin_back]
-            bin_xas.tey = tey_bin_array[:-empty_bin_back]
+            bin_xas.tey = temp_tey_bin_array[:-empty_bin_back]
             bin_xas.i0 = i0_bin_array[:-empty_bin_back]
             bin_xas.diode = diode_bin_array[:-empty_bin_back]
             bin_xas.pfy_sdd1 = pfy_sdd1_bin_array[:-empty_bin_back]
@@ -418,7 +437,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
         else:
             bin_xas = MultiXAS()
             bin_xas.energy = mean_energy_array[empty_bin_front:last_non_empty_bin]
-            bin_xas.tey = tey_bin_array[empty_bin_front:last_non_empty_bin]
+            bin_xas.tey = temp_tey_bin_array[empty_bin_front:last_non_empty_bin]
             bin_xas.i0 = i0_bin_array[empty_bin_front:last_non_empty_bin]
             bin_xas.diode = diode_bin_array[empty_bin_front:last_non_empty_bin]
             bin_xas.pfy_sdd1 = pfy_sdd1_bin_array[empty_bin_front:last_non_empty_bin]
@@ -429,7 +448,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
     else:
         bin_xas = MultiXAS()
         bin_xas.energy = mean_energy_array
-        bin_xas.tey = tey_bin_array
+        bin_xas.tey = temp_tey_bin_array
         bin_xas.i0 = i0_bin_array
         bin_xas.diode = diode_bin_array
         bin_xas.pfy_sdd1 = pfy_sdd1_bin_array
