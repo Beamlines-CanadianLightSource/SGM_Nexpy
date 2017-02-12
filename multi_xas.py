@@ -315,7 +315,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
     energy_array = xas.energy
     # Initial 3 arrays for each scaler
     temp_tey_bin_array = np.zeros(num_of_bins)
-    tey_bin_array = np.zeros(num_of_bins)
+    # tey_bin_array = np.zeros(num_of_bins)
     i0_bin_array = np.zeros(num_of_bins)
     diode_bin_array = np.zeros(num_of_bins)
     pfy_sdd1_bin_array = np.zeros(num_of_bins)
@@ -351,8 +351,9 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
                 x = energy_array[scan_index][datapoint_index] - edges_array[0]
                 # get integer part and plus 1
                 assign_bin_num = int(x / bin_width) + 1
-                #print (assign_bin_num)
+                # print (assign_bin_num)
                 bin_array[assign_bin_num - 1].append([scan_index, datapoint_index])
+                # record which bin a data point is assigned to
                 temp_bin_array[scan_index][assign_bin_num - 1].append(datapoint_index)
 
                 # calculate the sum of scaler
@@ -366,16 +367,19 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
                 pfy_sdd3_bin_array[assign_bin_num - 1] = pfy_sdd3_bin_array[assign_bin_num - 1] + pfy_sdd3_array[scan_index][datapoint_index]
                 pfy_sdd4_bin_array[assign_bin_num - 1] = pfy_sdd4_bin_array[assign_bin_num - 1] + pfy_sdd4_array[scan_index][datapoint_index]
 
-        print ("Scan: ",scan_index)
+        # print log for debugging and testing
+        # print ("Scan: ",scan_index)
+        # code for weighted averaging TEY, 1st part
         for bin_num in range (0, num_of_bins):
             counts = len(temp_bin_array[scan_index][bin_num])
             temp_sum = 0
             for i in range(0, counts):
                 temp_sum = temp_sum + tey_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
             temp_avg = temp_sum / counts
-            print ("sum: ", temp_sum)
-            print ("counts: ", counts)
-            print ("temp avg: ",temp_avg)
+            # print log for debugging and testing
+            # print ("sum: ", temp_sum)
+            # print ("counts: ", counts)
+            # print ("temp avg: ",temp_avg)
             temp_tey_bin_array[bin_num] = temp_tey_bin_array[bin_num] + temp_avg
 
     print("--- %s seconds ---" % (time.time() - start_time))
@@ -395,6 +399,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
         else:
             # print (temp_tey_bin_array[index])
             # print (total_scan_num)
+            # code for weighted averaging TEY, 2nd part
             temp_tey_bin_array[index] = temp_tey_bin_array[index] / total_scan_num
             i0_bin_array[index] = i0_bin_array[index] / total_data_point
             diode_bin_array[index] = diode_bin_array[index] / total_data_point
