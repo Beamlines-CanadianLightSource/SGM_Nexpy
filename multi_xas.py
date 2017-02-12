@@ -5,8 +5,8 @@ import time
 from nexpy.gui.plotview import NXPlotView
 # from matplotlib.figure import Figure
 
-def getMultiXAS(filename, range_start = None, range_end = None):
 
+def getMultiXAS(filename, range_start = None, range_end = None):
 
    if range_start == None:
       range_start = 0
@@ -73,6 +73,7 @@ class XAS(object):
       self.pfy_sdd2 = None
       self.pfy_sdd3 = None
       self.pfy_sdd4 = None
+
 
 class MultiXAS(XAS):
    def __init__(self):
@@ -147,6 +148,7 @@ class MultiXAS(XAS):
         scan_num_tuple = np.concatenate([scan_num_tuple, scan_num_list])
         energy_tuple = np.concatenate([energy_tuple, np.array(self.energy[i][:])])
         intensity_tuple = np.concatenate([intensity_tuple, np.array(intensity[i][:])])
+        # comment out the old way to generate scatter plot
         #plt.scatter(self.energy[i][:], scan_num_list, c=intensity[i][:], s=140, linewidths=0, marker='s')
 
     # print("--- %s seconds ---" % (time.time() - start_time))
@@ -227,6 +229,7 @@ def eem(multi_xas, name, scan_num=None):
     plotview.draw()
     print("--- %s seconds ---" % (time.time() - start_time))
 
+
 def get_good_scan(multi_xas, bad_scan_string):
     bad_scan_list = [x.strip() for x in bad_scan_string.split(',')]
     print (bad_scan_list)
@@ -245,6 +248,7 @@ def get_good_scan(multi_xas, bad_scan_string):
     print (good_scan_list)
     print (good_scan_index)
     return get_good_scan_data(multi_xas, good_scan_index, good_scan_list)
+
 
 def get_good_scan_data(multi_xas, good_scan_index, good_scan_list):
 
@@ -357,6 +361,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
                 temp_bin_array[scan_index][assign_bin_num - 1].append(datapoint_index)
 
                 # calculate the sum of scaler
+                # comment out the code calculating average of TEY
                 # tey_bin_array[assign_bin_num - 1] = tey_bin_array[assign_bin_num - 1] + tey_array[scan_index][datapoint_index]
                 i0_bin_array[assign_bin_num - 1] = i0_bin_array[assign_bin_num - 1] + i0_array[scan_index][datapoint_index]
                 diode_bin_array[assign_bin_num - 1] = diode_bin_array[assign_bin_num - 1] + diode_array[scan_index][datapoint_index]
@@ -369,7 +374,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
 
         # print log for debugging and testing
         # print ("Scan: ",scan_index)
-        # code for weighted averaging TEY, 1st part
+        # code to calculate weighted average TEY, 1st part
         for bin_num in range (0, num_of_bins):
             counts = len(temp_bin_array[scan_index][bin_num])
             temp_sum = 0
@@ -399,7 +404,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
         else:
             # print (temp_tey_bin_array[index])
             # print (total_scan_num)
-            # code for weighted averaging TEY, 2nd part
+            # code to calculate weighted average TEY, 2nd part
             temp_tey_bin_array[index] = temp_tey_bin_array[index] / total_scan_num
             i0_bin_array[index] = i0_bin_array[index] / total_data_point
             diode_bin_array[index] = diode_bin_array[index] / total_data_point
@@ -534,6 +539,7 @@ def plot_avg_xas_all(bin_xas):
     plt.title('Binned(Averaged) PFY_SDD4')
 
     plt.tight_layout()
+    # use plotview from Nexpy to generate plots
     plotview.figure = plt
     plotview.tab_widget.removeTab(0)
     plotview.tab_widget.removeTab(0)
@@ -615,6 +621,8 @@ def plot_normalized(xas, dividend, divisor):
         return "Invalid divisor name"
 
     normalized_array = np.array(dividend_array) / np.array(divisor_array)
+
+    # the old code using Matplotlib to plot diagrams
     # plt.figure()
     # plt.plot(xas.energy, normalized_array)
     # str_y_axis = StringIO()
@@ -638,7 +646,7 @@ def plot_normalized(xas, dividend, divisor):
 
     return xas.energy, normalized_array
 
-
+# old code to normalize data between carbon PFY_SDD and blank PFY_SDD
 # def plot_normalized_carbon(dividend_xas, dividend, divisor_xas, divisor):
 #
 #     if dividend == "I0" or dividend == "IO":
