@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.ticker as plticker
 from cStringIO import StringIO
 import time
 from nexpy.gui.plotview import NXPlotView
@@ -156,18 +157,21 @@ class MultiXAS(XAS):
     # print("--- %s seconds ---" % (time.time() - start_time))
     # main function call to generate color scatter plot
     ax.scatter(energy_tuple, scan_num_tuple, c=intensity_tuple, s=140, linewidths=0, marker='s')
+    loc = plticker.MultipleLocator(base=1.0)  # this locator puts ticks at regular intervals
+    ax.yaxis.set_major_locator(loc)
+    # set the limitation of y axis
+    ax.set_ylim(ymin=0, ymax= total_cscan_num + 1)
+    # manipulate the ytick labels
+    t = np.arange(len(self.selected_scan_entry)) + 1.0
+    ax.set_yticks(t)
+    ax.set_yticklabels(self.selected_scan_entry)
     # add title of the figure
     ax.set_title("Summary Plot (Intensity: %s)" % (name))
     # add labels for x and y axis
     ax.set_xlabel('Incident Energy(eV)')
     ax.set_ylabel('Scan Entry')
     # set limit of y axis
-    # ax.set_ylim(ymin=0, ymax= total_cscan_num + 1)
     print ("selected_scan_entry: ", self.selected_scan_entry)
-    # manipulate the ytick labels
-    scan_entry = self.selected_scan_entry
-    scan_entry.insert(0, " ")
-    ax.set_yticklabels(scan_entry)
 
     plotview.grid(True)
     plotview.draw()
