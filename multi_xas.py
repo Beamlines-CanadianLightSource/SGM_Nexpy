@@ -17,7 +17,7 @@ def getMultiXAS(filename, range_start = None, range_end = None):
 
    multi_xas = MultiXAS()
 
-   multi_xas.scan_number = []
+   multi_xas.selected_scan_entry = []
    multi_xas.energy = []
    multi_xas.tey = []
    multi_xas.diode = []
@@ -30,7 +30,7 @@ def getMultiXAS(filename, range_start = None, range_end = None):
    for i in range (range_start, range_end):
       command = filename.NXentry[i].command
       if str(command).split(" ")[0] == "cscan":
-         multi_xas.scan_number.append(str(filename.NXentry[i]).split(":")[1])
+         multi_xas.selected_scan_entry.append(str(filename.NXentry[i]).split(":")[1])
          multi_xas.energy.append(filename.NXentry[i].instrument.monochromator.en)
          multi_xas.tey.append(np.array(filename.NXentry[i].instrument.absorbed_beam.tey_r))
          multi_xas.diode.append(np.array(filename.NXentry[i].instrument.absorbed_beam.pd1_r))
@@ -78,7 +78,7 @@ class XAS(object):
 class MultiXAS(XAS):
    def __init__(self):
       XAS.__init__(self)
-      self.scan_number = None
+      self.selected_scan_entry = None
 
    def getpfy(self, roi_start, roi_end):
       self.pfy_sdd1 = [[] for i in range(len(self.sdd1) )]
@@ -97,6 +97,7 @@ class MultiXAS(XAS):
     start_time = time.time()
     # matplotlib.rcParams['figure.figsize'] = (13, 10)
 
+    # select intensity
     name = name.upper()
     if name == "TEY":
         intensity = self.tey
@@ -121,7 +122,7 @@ class MultiXAS(XAS):
     # show the plot in Nexpy, similar to figure.show()
     plotview = NXPlotView()
 
-    # setup the size of figure
+    # setup the size of figure and pop-up window
     plotview.setMinimumHeight(200)
     if total_cscan_num > 10:
         ratio = total_cscan_num / 10
@@ -142,6 +143,7 @@ class MultiXAS(XAS):
     scan_num_tuple = np.zeros(len(self.energy[0]))
     scan_num_tuple.fill(1)
 
+    # prepare data as tuples for x, y, and color of scatter plot
     for i in range(1, total_cscan_num):
         scan_num_list = np.zeros(len(self.energy[i]))
         scan_num_list.fill(i + 1)
@@ -152,13 +154,20 @@ class MultiXAS(XAS):
         #plt.scatter(self.energy[i][:], scan_num_list, c=intensity[i][:], s=140, linewidths=0, marker='s')
 
     # print("--- %s seconds ---" % (time.time() - start_time))
+    # main function call to generate color scatter plot
     ax.scatter(energy_tuple, scan_num_tuple, c=intensity_tuple, s=140, linewidths=0, marker='s')
     # add title of the figure
     ax.set_title("Summary Plot (Intensity: %s)" % (name))
     # add labels for x and y axis
     ax.set_xlabel('Incident Energy(eV)')
-    ax.set_ylabel('Scan Index (Scan Number)')
-    ax.set_ylim(ymin=0, ymax= total_cscan_num + 1)
+    ax.set_ylabel('Scan Entry')
+    # set limit of y axis
+    # ax.set_ylim(ymin=0, ymax= total_cscan_num + 1)
+    print ("selected_scan_entry: ", self.selected_scan_entry)
+    # manipulate the ytick labels
+    scan_entry = self.selected_scan_entry
+    scan_entry.insert(0, " ")
+    ax.set_yticklabels(scan_entry)
 
     plotview.grid(True)
     plotview.draw()
@@ -233,11 +242,10 @@ def eem(multi_xas, name, scan_num=None):
 def get_good_scan(multi_xas, bad_scan_string):
     bad_scan_list = [x.strip() for x in bad_scan_string.split(',')]
     print (bad_scan_list)
-    scan_num_list = multi_xas.scan_number
+    scan_num_list = multi_xas.selected_scan_entry
     length = len(scan_num_list)
-    # good_scan_list = []
     good_scan_index = range(0, length, 1)
-    good_scan_list = multi_xas.scan_number[:]
+    good_scan_list = multi_xas.selected_scan_entry[:]
     for i in range (length):
         for j in range(len(bad_scan_list)):
             # print ("i: " + str(i))
@@ -245,8 +253,8 @@ def get_good_scan(multi_xas, bad_scan_string):
             if scan_num_list[i] == 'entry'+ str(bad_scan_list[j]):
                 good_scan_list.remove('entry'+ str(bad_scan_list[j]))
                 good_scan_index.remove(i)
-    print (good_scan_list)
-    print (good_scan_index)
+    print ("good_scan_list: ", good_scan_list)
+    print ("good_scan_index: ",good_scan_index)
     return get_good_scan_data(multi_xas, good_scan_index, good_scan_list)
 
 
@@ -254,7 +262,7 @@ def get_good_scan_data(multi_xas, good_scan_index, good_scan_list):
 
     good_xas = MultiXAS()
 
-    good_xas.scan_number = []
+    good_xas.selected_scan_entry = []
     good_xas.energy = []
     good_xas.tey = []
     good_xas.diode = []
@@ -268,10 +276,11 @@ def get_good_scan_data(multi_xas, good_scan_index, good_scan_list):
     good_xas.pfy_sdd3 = []
     good_xas.pfy_sdd4 = []
 
-    # get all good scan data from original data
+    # remove bad scans' data and get all good scans' data from selected data
 
-    good_xas.scan_number = good_scan_list[:]
+    good_xas.selected_scan_entry = good_scan_list[:]
     for i in range(0, len(good_scan_index)):
+        # store all of the useful good data in good_xas attribute
         good_xas.energy.append(np.array(multi_xas.energy[good_scan_index[i]]))
         good_xas.tey.append(np.array(multi_xas.tey[good_scan_index[i]]))
         good_xas.i0.append (np.array(multi_xas.i0[good_scan_index[i]]))
