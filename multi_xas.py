@@ -306,7 +306,7 @@ def binned_xas (xas, start_energy, end_energy, bin_interval):
 
 def create_bins(start_energy, end_energy, bin_interval):
     start_energy = int(start_energy + 1)
-    end_energy = int(end_energy - 1)
+    end_energy = int(end_energy)
     print ("Start creating bins")
     num_of_bins = int ((end_energy-start_energy) / bin_interval)
     print num_of_bins
