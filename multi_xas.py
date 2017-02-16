@@ -381,10 +381,10 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
                 # diode_bin_array[assign_bin_num - 1] = diode_bin_array[assign_bin_num - 1] + diode_array[scan_index][datapoint_index]
 
                 # calculate the sum of pfy sdd
-                pfy_sdd1_bin_array[assign_bin_num - 1] = pfy_sdd1_bin_array[assign_bin_num - 1] + pfy_sdd1_array[scan_index][datapoint_index]
-                pfy_sdd2_bin_array[assign_bin_num - 1] = pfy_sdd2_bin_array[assign_bin_num - 1] + pfy_sdd2_array[scan_index][datapoint_index]
-                pfy_sdd3_bin_array[assign_bin_num - 1] = pfy_sdd3_bin_array[assign_bin_num - 1] + pfy_sdd3_array[scan_index][datapoint_index]
-                pfy_sdd4_bin_array[assign_bin_num - 1] = pfy_sdd4_bin_array[assign_bin_num - 1] + pfy_sdd4_array[scan_index][datapoint_index]
+                # pfy_sdd1_bin_array[assign_bin_num - 1] = pfy_sdd1_bin_array[assign_bin_num - 1] + pfy_sdd1_array[scan_index][datapoint_index]
+                # pfy_sdd2_bin_array[assign_bin_num - 1] = pfy_sdd2_bin_array[assign_bin_num - 1] + pfy_sdd2_array[scan_index][datapoint_index]
+                # pfy_sdd3_bin_array[assign_bin_num - 1] = pfy_sdd3_bin_array[assign_bin_num - 1] + pfy_sdd3_array[scan_index][datapoint_index]
+                # pfy_sdd4_bin_array[assign_bin_num - 1] = pfy_sdd4_bin_array[assign_bin_num - 1] + pfy_sdd4_array[scan_index][datapoint_index]
 
         # print log for debugging and testing
         # print ("Scan: ",scan_index)
@@ -394,19 +394,36 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
             tey_sum = 0
             i0_sum = 0
             diode_sum = 0
+            pfy_sdd1_sum = 0
+            pfy_sdd2_sum = 0
+            pfy_sdd3_sum = 0
+            pfy_sdd4_sum = 0
+
             for i in range(0, counts):
                 tey_sum = tey_sum + tey_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
                 i0_sum = i0_sum + i0_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
                 diode_sum = diode_sum + diode_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
+                pfy_sdd1_sum = pfy_sdd1_sum + pfy_sdd1_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
+                pfy_sdd2_sum = pfy_sdd2_sum + pfy_sdd2_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
+                pfy_sdd3_sum = pfy_sdd3_sum + pfy_sdd3_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
+                pfy_sdd4_sum = pfy_sdd4_sum + pfy_sdd4_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
 
             if (counts==0):
                 tey_bin_array[bin_num] = tey_bin_array[bin_num]
                 i0_bin_array[bin_num] = i0_bin_array[bin_num]
                 diode_bin_array[bin_num] = diode_bin_array[bin_num]
+                pfy_sdd1_bin_array[bin_num] = pfy_sdd1_bin_array[bin_num]
+                pfy_sdd2_bin_array[bin_num] = pfy_sdd2_bin_array[bin_num]
+                pfy_sdd3_bin_array[bin_num] = pfy_sdd3_bin_array[bin_num]
+                pfy_sdd4_bin_array[bin_num] = pfy_sdd4_bin_array[bin_num]
             else:
                 tey_avg = tey_sum / counts
                 i0_avg = i0_sum / counts
                 diode_avg = diode_sum / counts
+                pfy_sdd1_avg = pfy_sdd1_sum / counts
+                pfy_sdd2_avg = pfy_sdd2_sum / counts
+                pfy_sdd3_avg = pfy_sdd3_sum / counts
+                pfy_sdd4_avg = pfy_sdd4_sum / counts
                 # print log for debugging and testing
                 # print ("tey sum: ", tey_sum)
                 # print ("counts: ", counts)
@@ -414,6 +431,10 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
                 tey_bin_array[bin_num] = tey_bin_array[bin_num] + tey_avg
                 i0_bin_array[bin_num] = i0_bin_array[bin_num] + i0_avg
                 diode_bin_array[bin_num] = diode_bin_array[bin_num] + diode_avg
+                pfy_sdd1_bin_array[bin_num] = pfy_sdd1_bin_array[bin_num] + pfy_sdd1_avg
+                pfy_sdd2_bin_array[bin_num] = pfy_sdd2_bin_array[bin_num] + pfy_sdd2_avg
+                pfy_sdd3_bin_array[bin_num] = pfy_sdd3_bin_array[bin_num] + pfy_sdd3_avg
+                pfy_sdd4_bin_array[bin_num] = pfy_sdd4_bin_array[bin_num] + pfy_sdd4_avg
 
     print("--- %s seconds ---" % (time.time() - start_time))
     print (tey_bin_array)
@@ -436,10 +457,10 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
             tey_bin_array[index] = tey_bin_array[index] / total_scan_num
             i0_bin_array[index] = i0_bin_array[index] / total_scan_num
             diode_bin_array[index] = diode_bin_array[index] / total_scan_num
-            pfy_sdd1_bin_array[index] = pfy_sdd1_bin_array[index] / total_data_point
-            pfy_sdd2_bin_array[index] = pfy_sdd2_bin_array[index] / total_data_point
-            pfy_sdd3_bin_array[index] = pfy_sdd3_bin_array[index] / total_data_point
-            pfy_sdd4_bin_array[index] = pfy_sdd4_bin_array[index] / total_data_point
+            pfy_sdd1_bin_array[index] = pfy_sdd1_bin_array[index] / total_scan_num
+            pfy_sdd2_bin_array[index] = pfy_sdd2_bin_array[index] / total_scan_num
+            pfy_sdd3_bin_array[index] = pfy_sdd3_bin_array[index] / total_scan_num
+            pfy_sdd4_bin_array[index] = pfy_sdd4_bin_array[index] / total_scan_num
 
     # remove empty bins in the front or at the end using slice indices
     if empty_bins != 0:
