@@ -305,7 +305,7 @@ def binned_xas (xas, start_energy, end_energy, bin_interval):
 
 
 def create_bins(start_energy, end_energy, bin_interval):
-    start_energy = int(start_energy + 1)
+    start_energy = int(start_energy)-1
     end_energy = int(end_energy)
     print ("Start creating bins")
     num_of_bins = int ((end_energy-start_energy) / bin_interval)
@@ -367,10 +367,21 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
         for datapoint_index in range(0, len_sub_energy_array):
             if energy_array[scan_index][datapoint_index] <= edges_array[-1]:
                 x = energy_array[scan_index][datapoint_index] - edges_array[0]
+                # code to debug assign data point problem
+                # if datapoint_index <= 50:
+                #     print ("Energy: ", energy_array[scan_index][datapoint_index])
+                #     print ("Edge :", edges_array[0])
+                #     print ("Sub: " , x)
                 # get integer part and plus 1
                 assign_bin_num = int(x / bin_width) + 1
                 # print (assign_bin_num)
                 bin_array[assign_bin_num - 1].append([scan_index, datapoint_index])
+
+                # code to debug assign data point problem
+                # if datapoint_index >= 1400 or datapoint_index <= 50:
+                #     print ("Assigned bin: ", assign_bin_num)
+                #     print ("data point index:", datapoint_index)
+
                 # record which bin a data point is assigned to
                 temp_bin_array[scan_index][assign_bin_num - 1].append(datapoint_index)
 
@@ -399,7 +410,16 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
             pfy_sdd3_sum = 0
             pfy_sdd4_sum = 0
 
+            # if bin_num >= 460:
+            #     print("bin num:", bin_num)
+
             for i in range(0, counts):
+
+                # code to debug assign data point problem
+                # if bin_num >= 460:
+                #     print("data point index: ", temp_bin_array[scan_index][bin_num][i])
+                #     print (tey_array[scan_index][temp_bin_array[scan_index][bin_num][i]])
+
                 tey_sum = tey_sum + tey_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
                 i0_sum = i0_sum + i0_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
                 diode_sum = diode_sum + diode_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
@@ -409,6 +429,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
                 pfy_sdd4_sum = pfy_sdd4_sum + pfy_sdd4_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
 
             if (counts==0):
+                print ("No data point is in Bin No." + str(bin_num + 1)+ "for scan: "+ str(scan_index+1) + ". Average calculation is not necessary")
                 tey_bin_array[bin_num] = tey_bin_array[bin_num]
                 i0_bin_array[bin_num] = i0_bin_array[bin_num]
                 diode_bin_array[bin_num] = diode_bin_array[bin_num]
@@ -425,9 +446,11 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
                 pfy_sdd3_avg = pfy_sdd3_sum / counts
                 pfy_sdd4_avg = pfy_sdd4_sum / counts
                 # print log for debugging and testing
+                # print("bin num:", bin_num)
                 # print ("tey sum: ", tey_sum)
                 # print ("counts: ", counts)
-                # print ("temp avg: ",temp_avg)
+                # print ("tey_avg: ",tey_avg)
+                # print("---------------")
                 tey_bin_array[bin_num] = tey_bin_array[bin_num] + tey_avg
                 i0_bin_array[bin_num] = i0_bin_array[bin_num] + i0_avg
                 diode_bin_array[bin_num] = diode_bin_array[bin_num] + diode_avg
@@ -444,12 +467,13 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
     for index in range(0, num_of_bins):
         # get the total number of data points in a particular bin
         total_data_point = len(bin_array[index])
-
         # print ("Bin No.", index+1, "; it contains ", total_data_point, "data points")
 
         if total_data_point == 0:
             empty_bins = empty_bins + 1
             print ("No data point is in Bin No."+ str(index + 1) + ". Average calculation is not necessary")
+        elif scan_index==1:
+            print ("No average calculation if there is only 1 scan.")
         else:
             # print (tey_bin_array[index])
             # print (total_scan_num)
