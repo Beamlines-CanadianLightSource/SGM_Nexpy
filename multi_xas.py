@@ -1,12 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.ticker as plticker
 from cStringIO import StringIO
 import time
 from nexpy.gui.plotview import NXPlotView
 # from matplotlib.figure import Figure
 
-def getMultiXAS(filename, range_start = None, range_end = None):
 
+def getMultiXAS(filename, range_start = None, range_end = None):
 
    if range_start == None:
       range_start = 0
@@ -17,7 +18,7 @@ def getMultiXAS(filename, range_start = None, range_end = None):
 
    multi_xas = MultiXAS()
 
-   multi_xas.scan_number = []
+   multi_xas.selected_scan_entry = []
    multi_xas.energy = []
    multi_xas.tey = []
    multi_xas.diode = []
@@ -30,7 +31,7 @@ def getMultiXAS(filename, range_start = None, range_end = None):
    for i in range (range_start, range_end):
       command = filename.NXentry[i].command
       if str(command).split(" ")[0] == "cscan":
-         multi_xas.scan_number.append(str(filename.NXentry[i]).split(":")[1])
+         multi_xas.selected_scan_entry.append(str(filename.NXentry[i]).split(":")[1])
          multi_xas.energy.append(filename.NXentry[i].instrument.monochromator.en)
          multi_xas.tey.append(np.array(filename.NXentry[i].instrument.absorbed_beam.tey_r))
          multi_xas.diode.append(np.array(filename.NXentry[i].instrument.absorbed_beam.pd1_r))
@@ -74,10 +75,11 @@ class XAS(object):
       self.pfy_sdd3 = None
       self.pfy_sdd4 = None
 
+
 class MultiXAS(XAS):
    def __init__(self):
       XAS.__init__(self)
-      self.scan_number = None
+      self.selected_scan_entry = None
 
    def getpfy(self, roi_start, roi_end):
       self.pfy_sdd1 = [[] for i in range(len(self.sdd1) )]
@@ -96,6 +98,7 @@ class MultiXAS(XAS):
     start_time = time.time()
     # matplotlib.rcParams['figure.figsize'] = (13, 10)
 
+    # select intensity
     name = name.upper()
     if name == "TEY":
         intensity = self.tey
@@ -120,7 +123,7 @@ class MultiXAS(XAS):
     # show the plot in Nexpy, similar to figure.show()
     plotview = NXPlotView()
 
-    # setup the size of figure
+    # setup the size of figure and pop-up window
     plotview.setMinimumHeight(200)
     if total_cscan_num > 10:
         ratio = total_cscan_num / 10
@@ -141,22 +144,36 @@ class MultiXAS(XAS):
     scan_num_tuple = np.zeros(len(self.energy[0]))
     scan_num_tuple.fill(1)
 
+    # prepare data as tuples for x, y, and color of scatter plot
     for i in range(1, total_cscan_num):
         scan_num_list = np.zeros(len(self.energy[i]))
         scan_num_list.fill(i + 1)
         scan_num_tuple = np.concatenate([scan_num_tuple, scan_num_list])
         energy_tuple = np.concatenate([energy_tuple, np.array(self.energy[i][:])])
         intensity_tuple = np.concatenate([intensity_tuple, np.array(intensity[i][:])])
+        # comment out the old way to generate scatter plot
         #plt.scatter(self.energy[i][:], scan_num_list, c=intensity[i][:], s=140, linewidths=0, marker='s')
 
     # print("--- %s seconds ---" % (time.time() - start_time))
+    # main function call to generate color scatter plot
     ax.scatter(energy_tuple, scan_num_tuple, c=intensity_tuple, s=140, linewidths=0, marker='s')
+    # this locator puts ticks at regular intervals
+    loc = plticker.MultipleLocator(base=1.0)
+    # set regular ticks interval
+    ax.yaxis.set_major_locator(loc)
+    # set the limitation of y axis
+    ax.set_ylim(ymin=0, ymax= total_cscan_num + 1)
+    # manipulate the ytick labels
+    t = np.arange(len(self.selected_scan_entry)) + 1.0
+    ax.set_yticks(t)
+    ax.set_yticklabels(self.selected_scan_entry)
     # add title of the figure
     ax.set_title("Summary Plot (Intensity: %s)" % (name))
     # add labels for x and y axis
     ax.set_xlabel('Incident Energy(eV)')
-    ax.set_ylabel('Scan Index (Scan Number)')
-    ax.set_ylim(ymin=0, ymax= total_cscan_num + 1)
+    ax.set_ylabel('Scan Entry')
+    # set limit of y axis
+    print ("selected_scan_entry: ", self.selected_scan_entry)
 
     plotview.grid(True)
     plotview.draw()
@@ -227,14 +244,14 @@ def eem(multi_xas, name, scan_num=None):
     plotview.draw()
     print("--- %s seconds ---" % (time.time() - start_time))
 
+
 def get_good_scan(multi_xas, bad_scan_string):
     bad_scan_list = [x.strip() for x in bad_scan_string.split(',')]
     print (bad_scan_list)
-    scan_num_list = multi_xas.scan_number
+    scan_num_list = multi_xas.selected_scan_entry
     length = len(scan_num_list)
-    # good_scan_list = []
     good_scan_index = range(0, length, 1)
-    good_scan_list = multi_xas.scan_number[:]
+    good_scan_list = multi_xas.selected_scan_entry[:]
     for i in range (length):
         for j in range(len(bad_scan_list)):
             # print ("i: " + str(i))
@@ -242,15 +259,16 @@ def get_good_scan(multi_xas, bad_scan_string):
             if scan_num_list[i] == 'entry'+ str(bad_scan_list[j]):
                 good_scan_list.remove('entry'+ str(bad_scan_list[j]))
                 good_scan_index.remove(i)
-    print (good_scan_list)
-    print (good_scan_index)
+    print ("good_scan_list: ", good_scan_list)
+    print ("good_scan_index: ",good_scan_index)
     return get_good_scan_data(multi_xas, good_scan_index, good_scan_list)
+
 
 def get_good_scan_data(multi_xas, good_scan_index, good_scan_list):
 
     good_xas = MultiXAS()
 
-    good_xas.scan_number = []
+    good_xas.selected_scan_entry = []
     good_xas.energy = []
     good_xas.tey = []
     good_xas.diode = []
@@ -264,10 +282,11 @@ def get_good_scan_data(multi_xas, good_scan_index, good_scan_list):
     good_xas.pfy_sdd3 = []
     good_xas.pfy_sdd4 = []
 
-    # get all good scan data from original data
+    # remove bad scans' data and get all good scans' data from selected data
 
-    good_xas.scan_number = good_scan_list[:]
+    good_xas.selected_scan_entry = good_scan_list[:]
     for i in range(0, len(good_scan_index)):
+        # store all of the useful good data in good_xas attribute
         good_xas.energy.append(np.array(multi_xas.energy[good_scan_index[i]]))
         good_xas.tey.append(np.array(multi_xas.tey[good_scan_index[i]]))
         good_xas.i0.append (np.array(multi_xas.i0[good_scan_index[i]]))
@@ -286,8 +305,8 @@ def binned_xas (xas, start_energy, end_energy, bin_interval):
 
 
 def create_bins(start_energy, end_energy, bin_interval):
-    start_energy = int(start_energy + 1)
-    end_energy = int(end_energy - 1)
+    start_energy = int(start_energy)-1
+    end_energy = int(end_energy)
     print ("Start creating bins")
     num_of_bins = int ((end_energy-start_energy) / bin_interval)
     print num_of_bins
@@ -331,58 +350,141 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
     pfy_sdd3_array = np.array(xas.pfy_sdd3)
     pfy_sdd4_array = np.array(xas.pfy_sdd4)
 
+    total_scan_num = len(energy_array)
+    print total_scan_num
+
     bin_array = [[] for i in range(num_of_bins)]
+    temp_bin_array = [[[] for i in range(num_of_bins)] for j in range(total_scan_num)]
     bin_width = (edges_array[-1] - edges_array[0]) / num_of_bins
     # print ("The width of a bin is:", bin_width)
+    print("--- %s seconds ---" % (time.time() - start_time))
 
     # interation to assign data into bins
     print ("Start assigning data points into bins")
-    len_energy_array = len(energy_array)
-    print len_energy_array
-    print("--- %s seconds ---" % (time.time() - start_time))
-    for scan_index in range(0, len_energy_array):
+
+    for scan_index in range(0, total_scan_num):
         len_sub_energy_array = len(energy_array[scan_index])
         for datapoint_index in range(0, len_sub_energy_array):
             if energy_array[scan_index][datapoint_index] <= edges_array[-1]:
                 x = energy_array[scan_index][datapoint_index] - edges_array[0]
+                # code to debug assign data point problem
+                # if datapoint_index <= 50:
+                #     print ("Energy: ", energy_array[scan_index][datapoint_index])
+                #     print ("Edge :", edges_array[0])
+                #     print ("Sub: " , x)
                 # get integer part and plus 1
                 assign_bin_num = int(x / bin_width) + 1
-                #print (assign_bin_num)
+                # print (assign_bin_num)
                 bin_array[assign_bin_num - 1].append([scan_index, datapoint_index])
 
+                # code to debug assign data point problem
+                # if datapoint_index >= 1400 or datapoint_index <= 50:
+                #     print ("Assigned bin: ", assign_bin_num)
+                #     print ("data point index:", datapoint_index)
+
+                # record which bin a data point is assigned to
+                temp_bin_array[scan_index][assign_bin_num - 1].append(datapoint_index)
+
                 # calculate the sum of scaler
-                tey_bin_array[assign_bin_num - 1] = tey_bin_array[assign_bin_num - 1] + tey_array[scan_index][datapoint_index]
-                i0_bin_array[assign_bin_num - 1] = i0_bin_array[assign_bin_num - 1] + i0_array[scan_index][datapoint_index]
-                diode_bin_array[assign_bin_num - 1] = diode_bin_array[assign_bin_num - 1] + diode_array[scan_index][datapoint_index]
+                # comment out the code calculating average of TEY
+                # tey_bin_array[assign_bin_num - 1] = tey_bin_array[assign_bin_num - 1] + tey_array[scan_index][datapoint_index]
+                # i0_bin_array[assign_bin_num - 1] = i0_bin_array[assign_bin_num - 1] + i0_array[scan_index][datapoint_index]
+                # diode_bin_array[assign_bin_num - 1] = diode_bin_array[assign_bin_num - 1] + diode_array[scan_index][datapoint_index]
 
                 # calculate the sum of pfy sdd
-                pfy_sdd1_bin_array[assign_bin_num - 1] = pfy_sdd1_bin_array[assign_bin_num - 1] + pfy_sdd1_array[scan_index][datapoint_index]
-                pfy_sdd2_bin_array[assign_bin_num - 1] = pfy_sdd2_bin_array[assign_bin_num - 1] + pfy_sdd2_array[scan_index][datapoint_index]
-                pfy_sdd3_bin_array[assign_bin_num - 1] = pfy_sdd3_bin_array[assign_bin_num - 1] + pfy_sdd3_array[scan_index][datapoint_index]
-                pfy_sdd4_bin_array[assign_bin_num - 1] = pfy_sdd4_bin_array[assign_bin_num - 1] + pfy_sdd4_array[scan_index][datapoint_index]
+                # pfy_sdd1_bin_array[assign_bin_num - 1] = pfy_sdd1_bin_array[assign_bin_num - 1] + pfy_sdd1_array[scan_index][datapoint_index]
+                # pfy_sdd2_bin_array[assign_bin_num - 1] = pfy_sdd2_bin_array[assign_bin_num - 1] + pfy_sdd2_array[scan_index][datapoint_index]
+                # pfy_sdd3_bin_array[assign_bin_num - 1] = pfy_sdd3_bin_array[assign_bin_num - 1] + pfy_sdd3_array[scan_index][datapoint_index]
+                # pfy_sdd4_bin_array[assign_bin_num - 1] = pfy_sdd4_bin_array[assign_bin_num - 1] + pfy_sdd4_array[scan_index][datapoint_index]
+
+        # print log for debugging and testing
+        # print ("Scan: ",scan_index)
+        # code to calculate weighted average TEY, 1st part
+        for bin_num in range (0, num_of_bins):
+            counts = len(temp_bin_array[scan_index][bin_num])
+            tey_sum = 0
+            i0_sum = 0
+            diode_sum = 0
+            pfy_sdd1_sum = 0
+            pfy_sdd2_sum = 0
+            pfy_sdd3_sum = 0
+            pfy_sdd4_sum = 0
+
+            # if bin_num >= 460:
+            #     print("bin num:", bin_num)
+
+            for i in range(0, counts):
+
+                # code to debug assign data point problem
+                # if bin_num >= 460:
+                #     print("data point index: ", temp_bin_array[scan_index][bin_num][i])
+                #     print (tey_array[scan_index][temp_bin_array[scan_index][bin_num][i]])
+
+                tey_sum = tey_sum + tey_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
+                i0_sum = i0_sum + i0_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
+                diode_sum = diode_sum + diode_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
+                pfy_sdd1_sum = pfy_sdd1_sum + pfy_sdd1_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
+                pfy_sdd2_sum = pfy_sdd2_sum + pfy_sdd2_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
+                pfy_sdd3_sum = pfy_sdd3_sum + pfy_sdd3_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
+                pfy_sdd4_sum = pfy_sdd4_sum + pfy_sdd4_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
+
+            if (counts==0):
+                print ("No data point is in Bin No." + str(bin_num + 1)+ "for scan: "+ str(scan_index+1) + ". Average calculation is not necessary")
+                tey_bin_array[bin_num] = tey_bin_array[bin_num]
+                i0_bin_array[bin_num] = i0_bin_array[bin_num]
+                diode_bin_array[bin_num] = diode_bin_array[bin_num]
+                pfy_sdd1_bin_array[bin_num] = pfy_sdd1_bin_array[bin_num]
+                pfy_sdd2_bin_array[bin_num] = pfy_sdd2_bin_array[bin_num]
+                pfy_sdd3_bin_array[bin_num] = pfy_sdd3_bin_array[bin_num]
+                pfy_sdd4_bin_array[bin_num] = pfy_sdd4_bin_array[bin_num]
+            else:
+                tey_avg = tey_sum / counts
+                i0_avg = i0_sum / counts
+                diode_avg = diode_sum / counts
+                pfy_sdd1_avg = pfy_sdd1_sum / counts
+                pfy_sdd2_avg = pfy_sdd2_sum / counts
+                pfy_sdd3_avg = pfy_sdd3_sum / counts
+                pfy_sdd4_avg = pfy_sdd4_sum / counts
+                # print log for debugging and testing
+                # print("bin num:", bin_num)
+                # print ("tey sum: ", tey_sum)
+                # print ("counts: ", counts)
+                # print ("tey_avg: ",tey_avg)
+                # print("---------------")
+                tey_bin_array[bin_num] = tey_bin_array[bin_num] + tey_avg
+                i0_bin_array[bin_num] = i0_bin_array[bin_num] + i0_avg
+                diode_bin_array[bin_num] = diode_bin_array[bin_num] + diode_avg
+                pfy_sdd1_bin_array[bin_num] = pfy_sdd1_bin_array[bin_num] + pfy_sdd1_avg
+                pfy_sdd2_bin_array[bin_num] = pfy_sdd2_bin_array[bin_num] + pfy_sdd2_avg
+                pfy_sdd3_bin_array[bin_num] = pfy_sdd3_bin_array[bin_num] + pfy_sdd3_avg
+                pfy_sdd4_bin_array[bin_num] = pfy_sdd4_bin_array[bin_num] + pfy_sdd4_avg
 
     print("--- %s seconds ---" % (time.time() - start_time))
+    print (tey_bin_array)
 
     # Calculate average
     empty_bins = 0
     for index in range(0, num_of_bins):
         # get the total number of data points in a particular bin
         total_data_point = len(bin_array[index])
-
         # print ("Bin No.", index+1, "; it contains ", total_data_point, "data points")
 
         if total_data_point == 0:
             empty_bins = empty_bins + 1
             print ("No data point is in Bin No."+ str(index + 1) + ". Average calculation is not necessary")
+        elif scan_index==1:
+            print ("No average calculation if there is only 1 scan.")
         else:
-
-            tey_bin_array[index] = tey_bin_array[index] / total_data_point
-            i0_bin_array[index] = i0_bin_array[index] / total_data_point
-            diode_bin_array[index] = diode_bin_array[index] / total_data_point
-            pfy_sdd1_bin_array[index] = pfy_sdd1_bin_array[index] / total_data_point
-            pfy_sdd2_bin_array[index] = pfy_sdd2_bin_array[index] / total_data_point
-            pfy_sdd3_bin_array[index] = pfy_sdd3_bin_array[index] / total_data_point
-            pfy_sdd4_bin_array[index] = pfy_sdd4_bin_array[index] / total_data_point
+            # print (tey_bin_array[index])
+            # print (total_scan_num)
+            # code to calculate weighted average TEY, 2nd part
+            tey_bin_array[index] = tey_bin_array[index] / total_scan_num
+            i0_bin_array[index] = i0_bin_array[index] / total_scan_num
+            diode_bin_array[index] = diode_bin_array[index] / total_scan_num
+            pfy_sdd1_bin_array[index] = pfy_sdd1_bin_array[index] / total_scan_num
+            pfy_sdd2_bin_array[index] = pfy_sdd2_bin_array[index] / total_scan_num
+            pfy_sdd3_bin_array[index] = pfy_sdd3_bin_array[index] / total_scan_num
+            pfy_sdd4_bin_array[index] = pfy_sdd4_bin_array[index] / total_scan_num
 
     # remove empty bins in the front or at the end using slice indices
     if empty_bins != 0:
@@ -510,6 +612,7 @@ def plot_avg_xas_all(bin_xas):
     plt.title('Binned(Averaged) PFY_SDD4')
 
     plt.tight_layout()
+    # use plotview from Nexpy to generate plots
     plotview.figure = plt
     plotview.tab_widget.removeTab(0)
     plotview.tab_widget.removeTab(0)
@@ -591,6 +694,8 @@ def plot_normalized(xas, dividend, divisor):
         return "Invalid divisor name"
 
     normalized_array = np.array(dividend_array) / np.array(divisor_array)
+
+    # the old code using Matplotlib to plot diagrams
     # plt.figure()
     # plt.plot(xas.energy, normalized_array)
     # str_y_axis = StringIO()
@@ -614,7 +719,7 @@ def plot_normalized(xas, dividend, divisor):
 
     return xas.energy, normalized_array
 
-
+# old code to normalize data between carbon PFY_SDD and blank PFY_SDD
 # def plot_normalized_carbon(dividend_xas, dividend, divisor_xas, divisor):
 #
 #     if dividend == "I0" or dividend == "IO":
