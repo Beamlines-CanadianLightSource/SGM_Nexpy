@@ -275,22 +275,32 @@ class MultiXasDialog(BaseDialog):
         roi_peak_layout = QtGui.QHBoxLayout()
         roi_peak_layout.addWidget(QtGui.QLabel(text))
         self.roi_peak = QtGui.QSlider(Qt.Horizontal)
-        self.pLabel = QtGui.QLabel('800 eV')
+        self.pLabel = QtGui.QLineEdit()
+        self.pLabel.setFixedWidth(30)
+        self.pLabel.setText('800')
+        self.pLabel.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum))
+        self.pLabel.setAlignment(Qt.AlignRight)
         self.roi_peak.setMinimum(0)
         self.roi_peak.setMaximum(256)
         self.roi_peak.setValue(80)
         self.roi_peak.setTickPosition(QtGui.QSlider.TicksBelow)
-        self.roi_peak.setTickInterval(1)
+        self.roi_peak.setTickInterval(50)
         roi_peak_layout.addWidget(self.roi_peak)
         self.roi_peak.valueChanged.connect(self.setRoi)
+        self.pUnits = QtGui.QLabel('eV')
         roi_peak_layout.addWidget(self.pLabel)
+        roi_peak_layout.addWidget(self.pUnits)
         return roi_peak_layout
 
     def roi_width_slider(self, text='ROI Width :'):
         roi_width_layout = QtGui.QHBoxLayout()
         roi_width_layout.addWidget(QtGui.QLabel(text))
         self.roi_width = QtGui.QSlider(Qt.Horizontal)
-        self.wLabel = QtGui.QLabel('200 eV')
+        self.wLabel = QtGui.QLineEdit()
+        self.wLabel.setFixedWidth(30)
+        self.wLabel.setText('200')
+        self.wLabel.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum))
+        self.wLabel.setAlignment(Qt.AlignRight)
         self.roi_width.setMinimum(2)
         self.roi_width.setMaximum(100)
         self.roi_width.setValue(20)
@@ -298,7 +308,9 @@ class MultiXasDialog(BaseDialog):
         self.roi_peak.setTickInterval(1)
         roi_width_layout.addWidget(self.roi_width)
         self.roi_width.valueChanged.connect(self.setRoi)
+        self.wUnits = QtGui.QLabel('eV')
         roi_width_layout.addWidget(self.wLabel)
+        roi_width_layout.addWidget(self.wUnits)
         return roi_width_layout
    
     def setRoi(self):
@@ -307,11 +319,13 @@ class MultiXasDialog(BaseDialog):
         return self.roi_dn, self.roi_up 
   
     def roi_peak_label(self):
-        self.pLabel.setText(str(self.peak) + '0' + ' eV')
+        self.roi_peak.setValue(self.peak)
+        self.pLabel.setText(str(self.peak) + '0')
         return self.pLabel
 
     def roi_width_label(self):
-        self.wLabel.setText(str(self.width) + '0' + ' eV')
+        self.roi_width.setValue(self.width)
+        self.wLabel.setText(str(self.width) + '0')
         return self.wLabel
  
     def plot_sum(self):
