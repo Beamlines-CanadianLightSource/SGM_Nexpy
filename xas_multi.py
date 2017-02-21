@@ -4,9 +4,10 @@ from PyQt4.QtCore import *
 from nexpy.gui.datadialogs import BaseDialog, GridParameters
 from nexpy.gui.utils import report_error
 # from nexusformat.nexus import nxload, NeXusError, NXentry, NXdata, NXroot, NXfield
-from nexusformat.nexus.tree import * 
-from . import multi_xas, export_data
+from nexusformat.nexus.tree import *
+from . import multi_xas
 from customize_gui import QHLine
+
 
 def show_dialog(parent=None):
     try:
@@ -61,6 +62,7 @@ class MultiXasDialog(BaseDialog):
 
         layout.addLayout(self.root_layout)
         layout.addLayout(self.select_sdd())
+        layout.addLayout(self.select_eem_entry())
         layout.addWidget(self.pb_ploteems)
         layout.addWidget(self.h_line)
 
@@ -96,7 +98,7 @@ class MultiXasDialog(BaseDialog):
    
     @property
     def start(self):
-        return int(self.entry_num_box.currentText()) 
+        return int(self.entry_num_box.currentText())
 
     @property
     def end(self):
@@ -110,6 +112,10 @@ class MultiXasDialog(BaseDialog):
     def sdd(self):
         return self.select_sdd_box.currentText()
 
+    @property
+    def eem_entry(self):
+        return int(self.select_eem_entry_box.currentText())
+
     def refresh_entry(self):
         self.entry_num_box.clear()
         self.other_entry_num_box.clear()
@@ -122,6 +128,7 @@ class MultiXasDialog(BaseDialog):
 
         return
 
+    # drop down menu to select entry for summary plot and interpolated plot
     def select_entry_num(self, text= 'Select Entry :', other=False):
         layout = QtGui.QHBoxLayout()
         box = QtGui.QComboBox()
@@ -177,6 +184,25 @@ class MultiXasDialog(BaseDialog):
         
         self.select_sdd_box = box
         self.select_sdd_layout = layout
+
+        layout.addWidget(QtGui.QLabel(text))
+        layout.addWidget(box)
+        layout.addStretch()
+        return layout
+
+    # drop down menu to select sdd entry
+    def select_eem_entry(self, text='Select entry :'):
+        layout = QtGui.QHBoxLayout()
+        box = QtGui.QComboBox()
+        box.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
+        entries = []
+        for entry in range(len(self.root.NXentry)):
+            entries.append(entry)
+        for entry in sorted(entries):
+            box.addItem(str(entry + 1))
+
+        self.select_eem_entry_box = box
+        self.select_eem_entry_layout = layout
 
         layout.addWidget(QtGui.QLabel(text))
         layout.addWidget(box)
@@ -291,11 +317,14 @@ class MultiXasDialog(BaseDialog):
     def plot_sum(self):
         self.xas = multi_xas.getMultiXAS(self.root, range_start = self.start, range_end = self.end)
         self.xas.getpfy(self.roi_dn, self.roi_up)
+        print (self.sum_det)
         self.xas.summary_plot(self.sum_det)
         # return
 
     def plot_eems(self):
-        self.xas = multi_xas.getMultiXAS(self.root, range_start = self.start, range_end = self.end)
+
+        print ("Entry of summary plot is: ", self.eem_entry -1)
+        self.xas = multi_xas.getSingleXAS(self.root, self.eem_entry -1)
         multi_xas.eem(self.xas, self.sdd)
         return self.xas
 

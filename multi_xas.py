@@ -186,31 +186,28 @@ class SingleXAS(XAS):
       self.scan_number = None
 
 
-def eem(multi_xas, name, scan_num=None):
+def eem(multi_xas, name):
     start_time = time.time()
 
     # matplotlib.rcParams['figure.figsize'] = (14, 10)
 
-    if scan_num == None:
-      scan_num = 0
-
     name = name.upper()
     if name == "SDD1":
-      intensity = multi_xas.sdd1[scan_num]
+      intensity = multi_xas.sdd1
       # intensity = np.array(intensity)
     elif name == "SDD2":
-      intensity = multi_xas.sdd2[scan_num]
+      intensity = multi_xas.sdd2
       # intensity = np.array(intensity)
     elif name == "SDD3":
-      intensity = multi_xas.sdd3[scan_num]
+      intensity = multi_xas.sdd3
       # intensity = np.array(intensity)
     elif name == "SDD4":
-      intensity = multi_xas.sdd4[scan_num]
+      intensity = multi_xas.sdd4
       # intensity = np.array(intensity)
     else:
         return "Invalid name for the intensity of EEM"
 
-    energy_array = np.array(multi_xas.energy[scan_num])
+    energy_array = np.array(multi_xas.energy)
     num_of_points = len(energy_array)
     num_of_emission_bins = len(intensity[0])
 
