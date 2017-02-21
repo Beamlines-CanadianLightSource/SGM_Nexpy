@@ -4,10 +4,10 @@ from PyQt4.QtCore import *
 from nexpy.gui.datadialogs import BaseDialog, GridParameters
 from nexpy.gui.utils import report_error
 # from nexusformat.nexus import nxload, NeXusError, NXentry, NXdata, NXroot, NXfield
-from nexusformat.nexus.tree import * 
-from . import multi_xas, export_data
+from nexusformat.nexus.tree import *
+from . import multi_xas
 from customize_gui import QHLine
-from multi_xas import eem
+
 
 def show_dialog(parent=None):
     try:
@@ -323,14 +323,9 @@ class MultiXasDialog(BaseDialog):
 
     def plot_eems(self):
 
-        entries = []
-        for entry in range(len(self.root.NXentry)):
-            entries.append(entry)
-
-        print entries
-
-        self.xas = multi_xas.getMultiXAS(self.root, range_start = min(entries), range_end = max(entries)+1)
-        eem(self.xas, self.sdd, scan_num = self.eem_entry -1)
+        print ("Entry of summary plot is: ", self.eem_entry -1)
+        self.xas = multi_xas.getSingleXAS(self.root, self.eem_entry -1)
+        multi_xas.eem(self.xas, self.sdd)
         return self.xas
 
     def plot_averaged_data(self):
