@@ -38,9 +38,9 @@ class MultiXasDialog(BaseDialog):
         self.roi_peak_slider()
         self.roi_width_slider()
         
-        self.pb_ploteems = QtGui.QPushButton()
-        self.pb_ploteems.setObjectName("plot eems")
-        self.pb_ploteems.setText("Plot EEMS")
+        self.pb_ploteem = QtGui.QPushButton()
+        self.pb_ploteem.setObjectName("plot eem")
+        self.pb_ploteem.setText("Plot EEM")
 
         self.pb_getsumplot = QtGui.QPushButton()
         self.pb_getsumplot.setObjectName("summary plot")
@@ -64,7 +64,7 @@ class MultiXasDialog(BaseDialog):
         layout.addLayout(self.root_layout)
         layout.addLayout(self.select_sdd())
         layout.addLayout(self.select_eem_entry())
-        layout.addWidget(self.pb_ploteems)
+        layout.addWidget(self.pb_ploteem)
         layout.addWidget(self.h_line)
 
         # layout.addLayout(self.entry_num_layout)
@@ -91,7 +91,7 @@ class MultiXasDialog(BaseDialog):
         # layout.addWidget(self.close_buttons())
         
         self.setLayout(layout)
-        self.pb_ploteems.clicked.connect(self.plot_eems)
+        self.pb_ploteem.clicked.connect(self.plot_eem)
         self.pb_getsumplot.clicked.connect(self.plot_sum)
         self.pb_get_averaged.clicked.connect(self.plot_averaged_data)
         self.pb_get_normalized.clicked.connect(self.plot_normalized_data)
@@ -158,7 +158,7 @@ class MultiXasDialog(BaseDialog):
         return self.select_abs_box.currentText()
 
     # drop down menu to select sdd
-    def select_sdd(self, text='Select SDD :'):
+    def select_sdd(self, text='Select EEM SDD :'):
         layout = QtGui.QHBoxLayout()
         box = QtGui.QComboBox()
         box.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
@@ -175,7 +175,7 @@ class MultiXasDialog(BaseDialog):
         return layout
 
     # drop down menu to select sdd entry
-    def select_eem_entry(self, text='Select entry :'):
+    def select_eem_entry(self, text='Select EEM Entry :'):
         layout = QtGui.QHBoxLayout()
         box = QtGui.QComboBox()
         box.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
@@ -363,7 +363,7 @@ class MultiXasDialog(BaseDialog):
         self.xas.summary_plot(self.sum_det)
         # return
 
-    def plot_eems(self):
+    def plot_eem(self):
 
         print ("Entry of summary plot is: ", self.eem_entry -1)
         self.xas = multi_xas.getSingleXAS(self.root, self.eem_entry -1)
