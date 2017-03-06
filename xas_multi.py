@@ -29,8 +29,9 @@ class MultiXasDialog(BaseDialog):
         self.h_line3 = QHLine()
        
         self.select_root(text='Select File :')
-        self.select_entry_num(text='First Entry :')
-        self.select_entry_num(text='Last Entry :', other='True')
+        # self.select_entry_num(text='First Entry :')
+        # self.select_entry_num(text='Last Entry :', other='True')
+        self.select_entry()
         self.select_abs()
         self.select_sdd()
 
@@ -66,8 +67,9 @@ class MultiXasDialog(BaseDialog):
         layout.addWidget(self.pb_ploteems)
         layout.addWidget(self.h_line)
 
-        layout.addLayout(self.entry_num_layout)
-        layout.addLayout(self.other_entry_num_layout)
+        # layout.addLayout(self.entry_num_layout)
+        # layout.addLayout(self.other_entry_num_layout)
+        layout.addLayout(self.select_entry_num_layout)
 
         layout.addLayout(self.roi_peak_slider())
         layout.addLayout(self.roi_width_slider())
@@ -129,49 +131,31 @@ class MultiXasDialog(BaseDialog):
         return
 
     # drop down menu to select entry for summary plot and interpolated plot
-    def select_entry_num(self, text= 'Select Entry :', other=False):
-        layout = QtGui.QHBoxLayout()
-        box = QtGui.QComboBox()
-        box.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
-        entries = []
-        for entry in range(len(self.root.NXentry)):
-            entries.append(entry)
-        for entry in sorted(entries):
-            box.addItem(str(entry + 1))
-        
-        layout.addWidget(QtGui.QLabel(text))
-        layout.addWidget(box)
-        layout.addStretch()
-        if not other:
-            self.entry_num_box = box
-            self.entry_num_layout = layout
-        else:
-            self.other_entry_num_box = box
-            self.other_entry_num_layout = layout
-
-        return layout    
+    # def select_entry_num(self, text= 'Select Entry :', other=False):
+    #     layout = QtGui.QHBoxLayout()
+    #     box = QtGui.QComboBox()
+    #     box.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
+    #     entries = []
+    #     for entry in range(len(self.root.NXentry)):
+    #         entries.append(entry)
+    #     for entry in sorted(entries):
+    #         box.addItem(str(entry + 1))
+    #
+    #     layout.addWidget(QtGui.QLabel(text))
+    #     layout.addWidget(box)
+    #     layout.addStretch()
+    #     if not other:
+    #         self.entry_num_box = box
+    #         self.entry_num_layout = layout
+    #     else:
+    #         self.other_entry_num_box = box
+    #         self.other_entry_num_layout = layout
+    #
+    #     return layout
 
     @property
     def sum_det(self):
         return self.select_abs_box.currentText()
-
-    # drop down menu to select detector for summary plot
-    def select_abs(self, text='Select Detector :'):
-        layout = QtGui.QHBoxLayout()
-        box = QtGui.QComboBox()
-        box.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
-        sdds = ['TEY', 'I0', 'DIODE','PFY_SDD1', 'PFY_SDD2','PFY_SDD3','PFY_SDD4']
-        for sdd in sorted(sdds):
-            box.addItem(sdd)
-
-        box.setCurrentIndex(2)
-        self.select_abs_box = box
-        self.select_abs_layout = layout
-
-        layout.addWidget(QtGui.QLabel(text))
-        layout.addWidget(box)
-        layout.addStretch()
-        return layout
 
     # drop down menu to select sdd
     def select_sdd(self, text='Select SDD :'):
@@ -203,6 +187,50 @@ class MultiXasDialog(BaseDialog):
 
         self.select_eem_entry_box = box
         self.select_eem_entry_layout = layout
+
+        layout.addWidget(QtGui.QLabel(text))
+        layout.addWidget(box)
+        layout.addStretch()
+        return layout
+
+    def select_entry(self, text='Entry Range :'):
+        layout = QtGui.QHBoxLayout()
+        box = QtGui.QComboBox()
+        box.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
+        entries = []
+        for entry in range(len(self.root.NXentry)):
+            entries.append(entry)
+        for entry in sorted(entries):
+            box.addItem(str(entry + 1))
+
+        box2 = QtGui.QComboBox()
+        box2.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
+        for entry in sorted(entries):
+            box2.addItem(str(entry + 1))
+
+        self.entry_num_box = box
+        self.other_entry_num_box = box2
+
+        self.select_entry_num_layout = layout
+
+        layout.addWidget(QtGui.QLabel(text))
+        layout.addWidget(box)
+        layout.addWidget(box2)
+        layout.addStretch()
+        return layout
+
+    # drop down menu to select detector for summary plot
+    def select_abs(self, text='Select Detector :'):
+        layout = QtGui.QHBoxLayout()
+        box = QtGui.QComboBox()
+        box.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
+        sdds = ['TEY', 'I0', 'DIODE','PFY_SDD1', 'PFY_SDD2','PFY_SDD3','PFY_SDD4']
+        for sdd in sorted(sdds):
+            box.addItem(sdd)
+
+        box.setCurrentIndex(2)
+        self.select_abs_box = box
+        self.select_abs_layout = layout
 
         layout.addWidget(QtGui.QLabel(text))
         layout.addWidget(box)
