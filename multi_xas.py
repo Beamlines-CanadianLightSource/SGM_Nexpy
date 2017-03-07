@@ -32,14 +32,14 @@ def getMultiXAS(filename, range_start = None, range_end = None):
       command = filename.NXentry[i].command
       if str(command).split(" ")[0] == "cscan":
          multi_xas.selected_scan_entry.append(str(filename.NXentry[i]).split(":")[1])
-         multi_xas.energy.append(filename.NXentry[i].instrument.monochromator.en)
-         multi_xas.tey.append(np.array(filename.NXentry[i].instrument.absorbed_beam.tey_r))
-         multi_xas.diode.append(np.array(filename.NXentry[i].instrument.absorbed_beam.pd1_r))
-         multi_xas.i0.append(np.array(filename.NXentry[i].instrument.incoming_beam.io_r))
-         multi_xas.sdd1.append(np.array(filename.NXentry[i].instrument.fluorescence.sdd1))
-         multi_xas.sdd2.append(np.array(filename.NXentry[i].instrument.fluorescence.sdd2))
-         multi_xas.sdd3.append(np.array(filename.NXentry[i].instrument.fluorescence.sdd3))
-         multi_xas.sdd4.append(np.array(filename.NXentry[i].instrument.fluorescence.sdd4))
+         multi_xas.energy.append(np.array(np.array(filename.NXentry[i].instrument.monochromator.en)))
+         multi_xas.tey.append(np.array(np.array(filename.NXentry[i].instrument.absorbed_beam.tey_r)))
+         multi_xas.diode.append(np.array(np.array(filename.NXentry[i].instrument.absorbed_beam.pd1_r)))
+         multi_xas.i0.append(np.array(np.array(filename.NXentry[i].instrument.incoming_beam.io_r)))
+         multi_xas.sdd1.append(np.array(np.array(filename.NXentry[i].instrument.fluorescence.sdd1)))
+         multi_xas.sdd2.append(np.array(np.array(filename.NXentry[i].instrument.fluorescence.sdd2)))
+         multi_xas.sdd3.append(np.array(np.array(filename.NXentry[i].instrument.fluorescence.sdd3)))
+         multi_xas.sdd4.append(np.array(np.array(filename.NXentry[i].instrument.fluorescence.sdd4)))
 
    return multi_xas
 
@@ -74,6 +74,12 @@ class XAS(object):
       self.pfy_sdd2 = None
       self.pfy_sdd3 = None
       self.pfy_sdd4 = None
+
+
+class SingleXAS(XAS):
+   def __init__(self):
+      XAS.__init__(self)
+      self.scan_number = None
 
 
 class MultiXAS(XAS):
@@ -173,17 +179,11 @@ class MultiXAS(XAS):
     ax.set_xlabel('Incident Energy(eV)')
     ax.set_ylabel('Scan Entry')
     # set limit of y axis
-    print ("selected_scan_entry: ", self.selected_scan_entry)
+    print ("selected_scan_entry: "+ str(self.selected_scan_entry))
 
     plotview.grid(True)
     plotview.draw()
     print("--- %s seconds ---" % (time.time() - start_time))
-
-
-class SingleXAS(XAS):
-   def __init__(self):
-      XAS.__init__(self)
-      self.scan_number = None
 
 
 def eem(multi_xas, name):
@@ -193,19 +193,16 @@ def eem(multi_xas, name):
 
     name = name.upper()
     if name == "SDD1":
-      intensity = multi_xas.sdd1
-      # intensity = np.array(intensity)
+      intensity = np.array(multi_xas.sdd1)
     elif name == "SDD2":
-      intensity = multi_xas.sdd2
-      # intensity = np.array(intensity)
+      intensity = np.array(multi_xas.sdd2)
     elif name == "SDD3":
-      intensity = multi_xas.sdd3
-      # intensity = np.array(intensity)
+      intensity = np.array(multi_xas.sdd3)
     elif name == "SDD4":
-      intensity = multi_xas.sdd4
-      # intensity = np.array(intensity)
+      intensity = np.array(multi_xas.sdd4)
     else:
         return "Invalid name for the intensity of EEM"
+
 
     energy_array = np.array(multi_xas.energy)
     num_of_points = len(energy_array)
@@ -213,27 +210,28 @@ def eem(multi_xas, name):
 
     bin_num_for_x = np.zeros(shape=(num_of_points, num_of_emission_bins))
     for i in range(num_of_points):
-      bin_num_for_x[i].fill(energy_array[i])
+      bin_num_for_x[i].fill(np.array(energy_array[i]))
 
     bin_num_for_y = np.zeros(shape=(num_of_points, num_of_emission_bins))
     bin_num_for_y[0:] = np.arange(10, (num_of_emission_bins + 1) * 10, 10)
 
-    v_max = max(intensity[0])
-    for i in range(1, num_of_points):
-      temp_max = max(intensity[i])
-      if temp_max > v_max:
-         v_max = temp_max
+    v_max = np.amax(intensity)
+
+    # v_max = max(intensity[0])
+    # for i in range(1, num_of_points):
+    #   temp_max = max(intensity[i])
+    #   if temp_max > v_max:
+    #      v_max = temp_max
     # print ("v_max: ", v_max)
 
-    intensity = np.array(intensity)
     plotview = NXPlotView()
     plotview.figure.clf()
     ax = plotview.figure.gca()
     ax.axes.get_xaxis().set_visible(True)
     ax.axes.get_yaxis().set_visible(True)
-    # print("--- %s seconds ---" % (time.time() - start_time))
-    ax.scatter(bin_num_for_x, bin_num_for_y, c=intensity, s=7, linewidths=0, vmax=v_max, vmin=0)
     print("--- %s seconds ---" % (time.time() - start_time))
+    intensity = np.array(intensity)
+    ax.scatter(bin_num_for_x, bin_num_for_y, c=intensity, s=7, linewidths=0, vmax=v_max, vmin=0)
     ax.set_xlabel('Incident Energy (eV)')
     ax.set_ylabel('Emission Energy (eV)')
     ax.set_title("Excitation Emission Matrix")
@@ -243,8 +241,12 @@ def eem(multi_xas, name):
 
 
 def get_good_scan(multi_xas, bad_scan_string):
-    bad_scan_list = [x.strip() for x in bad_scan_string.split(',')]
-    print (bad_scan_list)
+    # chceck empty bac scan stirng (if not bad_scan_string):
+    if bad_scan_string !="":
+        bad_scan_list = [x.strip() for x in bad_scan_string.split(',')]
+    else:
+        bad_scan_list = []
+    print ("bad scan list: " + str(bad_scan_list))
     scan_num_list = multi_xas.selected_scan_entry
     length = len(scan_num_list)
     good_scan_index = range(0, length, 1)
@@ -256,44 +258,49 @@ def get_good_scan(multi_xas, bad_scan_string):
             if scan_num_list[i] == 'entry'+ str(bad_scan_list[j]):
                 good_scan_list.remove('entry'+ str(bad_scan_list[j]))
                 good_scan_index.remove(i)
-    print ("good_scan_list: ", good_scan_list)
-    print ("good_scan_index: ",good_scan_index)
-    return get_good_scan_data(multi_xas, good_scan_index, good_scan_list)
+    print ("good_scan_list: "+  str(good_scan_list))
+    print ("good_scan_index: "+ str(good_scan_index))
+    return get_good_scan_data(multi_xas, good_scan_index, good_scan_list, bad_scan_list)
 
 
-def get_good_scan_data(multi_xas, good_scan_index, good_scan_list):
+def get_good_scan_data(multi_xas, good_scan_index, good_scan_list, bad_scan_list):
+    start_time = time.time()
 
-    good_xas = MultiXAS()
+    print ("length of bad list", len(bad_scan_list))
+    if len(bad_scan_list) == 0:
+        return multi_xas
+    else:
+        good_xas = MultiXAS()
 
-    good_xas.selected_scan_entry = []
-    good_xas.energy = []
-    good_xas.tey = []
-    good_xas.diode = []
-    good_xas.i0 = []
-    good_xas.sdd1 = []
-    good_xas.sdd2 = []
-    good_xas.sdd3 = []
-    good_xas.sdd4 = []
-    good_xas.pfy_sdd1 = []
-    good_xas.pfy_sdd2 = []
-    good_xas.pfy_sdd3 = []
-    good_xas.pfy_sdd4 = []
+        good_xas.selected_scan_entry = []
+        good_xas.energy = []
+        good_xas.tey = []
+        good_xas.diode = []
+        good_xas.i0 = []
+        good_xas.sdd1 = []
+        good_xas.sdd2 = []
+        good_xas.sdd3 = []
+        good_xas.sdd4 = []
+        good_xas.pfy_sdd1 = []
+        good_xas.pfy_sdd2 = []
+        good_xas.pfy_sdd3 = []
+        good_xas.pfy_sdd4 = []
 
-    # remove bad scans' data and get all good scans' data from selected data
+        # remove bad scans' data and get all good scans' data
+        good_xas.selected_scan_entry = good_scan_list[:]
+        for i in range(0, len(good_scan_index)):
+            # store all of the useful good data in good_xas attribute
+            good_xas.energy.append(np.array(multi_xas.energy[good_scan_index[i]]))
+            good_xas.tey.append(np.array(multi_xas.tey[good_scan_index[i]]))
+            good_xas.i0.append (np.array(multi_xas.i0[good_scan_index[i]]))
+            good_xas.diode.append(np.array(multi_xas.diode[good_scan_index[i]]))
+            good_xas.pfy_sdd1.append(np.array(multi_xas.pfy_sdd1[good_scan_index[i]]))
+            good_xas.pfy_sdd2.append(np.array(multi_xas.pfy_sdd2[good_scan_index[i]]))
+            good_xas.pfy_sdd3.append(np.array(multi_xas.pfy_sdd3[good_scan_index[i]]))
+            good_xas.pfy_sdd4.append(np.array(multi_xas.pfy_sdd4[good_scan_index[i]]))
+            print("xxx--- %s seconds ---" % (time.time() - start_time))
 
-    good_xas.selected_scan_entry = good_scan_list[:]
-    for i in range(0, len(good_scan_index)):
-        # store all of the useful good data in good_xas attribute
-        good_xas.energy.append(np.array(multi_xas.energy[good_scan_index[i]]))
-        good_xas.tey.append(np.array(multi_xas.tey[good_scan_index[i]]))
-        good_xas.i0.append (np.array(multi_xas.i0[good_scan_index[i]]))
-        good_xas.diode.append(np.array(multi_xas.diode[good_scan_index[i]]))
-        good_xas.pfy_sdd1.append(np.array(multi_xas.pfy_sdd1[good_scan_index[i]]))
-        good_xas.pfy_sdd2.append(np.array(multi_xas.pfy_sdd2[good_scan_index[i]]))
-        good_xas.pfy_sdd3.append(np.array(multi_xas.pfy_sdd3[good_scan_index[i]]))
-        good_xas.pfy_sdd4.append(np.array(multi_xas.pfy_sdd4[good_scan_index[i]]))
-
-    return good_xas
+        return good_xas
 
 
 def binned_xas (xas, start_energy, end_energy, bin_interval):
@@ -306,11 +313,11 @@ def create_bins(start_energy, end_energy, bin_interval):
     end_energy = int(end_energy)
     print ("Start creating bins")
     num_of_bins = int ((end_energy-start_energy) / bin_interval)
-    print num_of_bins
+    # print num_of_bins
     num_of_edges = num_of_bins + 1
     # print ("Number of Bins:", num_of_bins)
     # print ("Number of Edges:", num_of_edges)
-    print ("Energy range is: ", start_energy, "-", end_energy)
+    print ("Energy range is: "+ str(start_energy) + "-"+ str(end_energy))
     edges_array = np.linspace(start_energy, end_energy, num_of_edges)
 
     # generate mean of bins
@@ -348,7 +355,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
     pfy_sdd4_array = np.array(xas.pfy_sdd4)
 
     total_scan_num = len(energy_array)
-    print total_scan_num
+    # print total_scan_num
 
     bin_array = [[] for i in range(num_of_bins)]
     temp_bin_array = [[[] for i in range(num_of_bins)] for j in range(total_scan_num)]
@@ -426,7 +433,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
                 pfy_sdd4_sum = pfy_sdd4_sum + pfy_sdd4_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
 
             if (counts==0):
-                print ("No data point is in Bin No." + str(bin_num + 1)+ "for scan: "+ str(scan_index+1) + ". Average calculation is not necessary")
+                # print ("No data point is in Bin No." + str(bin_num + 1)+ " for scan: "+ str(scan_index+1) + ". Average calculation is not necessary")
                 tey_bin_array[bin_num] = tey_bin_array[bin_num]
                 i0_bin_array[bin_num] = i0_bin_array[bin_num]
                 diode_bin_array[bin_num] = diode_bin_array[bin_num]
@@ -457,7 +464,6 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
                 pfy_sdd4_bin_array[bin_num] = pfy_sdd4_bin_array[bin_num] + pfy_sdd4_avg
 
     print("--- %s seconds ---" % (time.time() - start_time))
-    print (tey_bin_array)
 
     # Calculate average
     empty_bins = 0
@@ -468,7 +474,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
 
         if total_data_point == 0:
             empty_bins = empty_bins + 1
-            print ("No data point is in Bin No."+ str(index + 1) + ". Average calculation is not necessary")
+            # print ("No data point is in Bin No."+ str(index + 1) + ". Average calculation is not necessary")
         elif scan_index==1:
             print ("No average calculation if there is only 1 scan.")
         else:
