@@ -7,6 +7,7 @@ from nexpy.gui.utils import report_error
 from nexusformat.nexus.tree import *
 from . import multi_xas
 from customize_gui import QHLine
+import time
 
 
 def show_dialog(parent=None):
@@ -357,17 +358,26 @@ class MultiXasDialog(BaseDialog):
         return self.wLabel
  
     def plot_sum(self):
+        start_time = time.time()
         self.xas = multi_xas.getMultiXAS(self.root, range_start = self.start, range_end = self.end)
+        print ("111--- %s seconds ---" % (time.time() - start_time))
+
         self.xas.getpfy(self.roi_dn, self.roi_up)
         print (self.sum_det)
+        print ("222--- %s seconds ---" % (time.time() - start_time))
+
         self.xas.summary_plot(self.sum_det)
+        print ("333--- %s seconds ---" % (time.time() - start_time))
+
         # return
 
     def plot_eem(self):
-
+        start_time = time.time()
         print ("Entry of summary plot is: ", self.eem_entry -1)
         self.xas = multi_xas.getSingleXAS(self.root, self.eem_entry -1)
+        print ("aaa--- %s seconds ---" % (time.time() - start_time))
         multi_xas.eem(self.xas, self.sdd)
+        print ("bbb--- %s seconds ---" % (time.time() - start_time))
         return self.xas
 
     def plot_averaged_data(self):
@@ -389,12 +399,16 @@ class MultiXasDialog(BaseDialog):
         return np.amax(energy)
 
     def avg_xas(self):
+        start_time = time.time()
         self.xas = multi_xas.getMultiXAS(self.root, range_start = self.start, range_end = self.end)
+        print ("AAA--- %s seconds ---" % (time.time() - start_time))
         self.xas.getpfy(self.roi_dn, self.roi_up)
-        print self.bad_scan_str
+        print ("BBB--- %s seconds ---" % (time.time() - start_time))
+        # print self.bad_scan_str
         good_xas = multi_xas.get_good_scan(self.xas, bad_scan_string=self.bad_scan_str)
         self.bin_xas = multi_xas.binned_xas(good_xas, start_energy=self.start_en, end_energy=self.end_en,bin_interval=0.1)
         multi_xas.plot_avg_xas_all(self.bin_xas)
+        print ("CCC--- %s seconds ---" % (time.time() - start_time))
         scan_entry = str(self.root) + '_' + 'scans' + '_' + str(self.start) + '_' + str(self.end)
         try:
             self.tree.binned_data = NXroot()

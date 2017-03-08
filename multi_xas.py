@@ -4,44 +4,53 @@ import matplotlib.ticker as plticker
 from cStringIO import StringIO
 import time
 from nexpy.gui.plotview import NXPlotView
-# from matplotlib.figure import Figure
 
 
 def getMultiXAS(filename, range_start = None, range_end = None):
 
-   if range_start == None:
+    if range_start == None:
       range_start = 0
-   if range_end == None:
+    if range_end == None:
       range_end = len(filename.NXentry)
-   if range_start != 0:
+    if range_start != 0:
       range_start = range_start - 1
 
-   multi_xas = MultiXAS()
+    multi_xas = MultiXAS()
 
-   multi_xas.selected_scan_entry = []
-   multi_xas.energy = []
-   multi_xas.tey = []
-   multi_xas.diode = []
-   multi_xas.i0 = []
-   multi_xas.sdd1 = []
-   multi_xas.sdd2 = []
-   multi_xas.sdd3 = []
-   multi_xas.sdd4 = []
+    multi_xas.selected_scan_entry = []
+    multi_xas.energy = []
+    multi_xas.tey = []
+    multi_xas.diode = []
+    multi_xas.i0 = []
+    multi_xas.sdd1 = []
+    multi_xas.sdd2 = []
+    multi_xas.sdd3 = []
+    multi_xas.sdd4 = []
 
-   for i in range (range_start, range_end):
-      command = filename.NXentry[i].command
-      if str(command).split(" ")[0] == "cscan":
-         multi_xas.selected_scan_entry.append(str(filename.NXentry[i]).split(":")[1])
-         multi_xas.energy.append(np.array(np.array(filename.NXentry[i].instrument.monochromator.en)))
-         multi_xas.tey.append(np.array(np.array(filename.NXentry[i].instrument.absorbed_beam.tey_r)))
-         multi_xas.diode.append(np.array(np.array(filename.NXentry[i].instrument.absorbed_beam.pd1_r)))
-         multi_xas.i0.append(np.array(np.array(filename.NXentry[i].instrument.incoming_beam.io_r)))
-         multi_xas.sdd1.append(np.array(np.array(filename.NXentry[i].instrument.fluorescence.sdd1)))
-         multi_xas.sdd2.append(np.array(np.array(filename.NXentry[i].instrument.fluorescence.sdd2)))
-         multi_xas.sdd3.append(np.array(np.array(filename.NXentry[i].instrument.fluorescence.sdd3)))
-         multi_xas.sdd4.append(np.array(np.array(filename.NXentry[i].instrument.fluorescence.sdd4)))
+    scan_entry_append = multi_xas.selected_scan_entry.append
+    energy_append = multi_xas.energy.append
+    tey_append = multi_xas.tey.append
+    diode_append = multi_xas.diode.append
+    i0_append = multi_xas.i0.append
+    sdd1_append = multi_xas.sdd1.append
+    sdd2_append = multi_xas.sdd2.append
+    sdd3_append = multi_xas.sdd3.append
+    sdd4_append = multi_xas.sdd4.append
 
-   return multi_xas
+    for i in range(range_start, range_end):
+        command = filename.NXentry[i].command
+        if str(command).split(" ")[0] == "cscan":
+            scan_entry_append(str(filename.NXentry[i]).split(":")[1])
+            energy_append(np.array(filename.NXentry[i].instrument.monochromator.en))
+            tey_append(np.array(filename.NXentry[i].instrument.absorbed_beam.tey_r))
+            diode_append(np.array(filename.NXentry[i].instrument.absorbed_beam.pd1_r))
+            i0_append(np.array(filename.NXentry[i].instrument.incoming_beam.io_r))
+            sdd1_append(np.array(filename.NXentry[i].instrument.fluorescence.sdd1))
+            sdd2_append(np.array(filename.NXentry[i].instrument.fluorescence.sdd2))
+            sdd3_append(np.array(filename.NXentry[i].instrument.fluorescence.sdd3))
+            sdd4_append(np.array(filename.NXentry[i].instrument.fluorescence.sdd4))
+
+    return multi_xas
 
 
 def getSingleXAS(filename, i):
