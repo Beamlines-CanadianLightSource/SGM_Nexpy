@@ -27,28 +27,40 @@ def getMultiXAS(filename, range_start = None, range_end = None):
     multi_xas.sdd3 = []
     multi_xas.sdd4 = []
 
-    scan_entry_append = multi_xas.selected_scan_entry.append
-    energy_append = multi_xas.energy.append
-    tey_append = multi_xas.tey.append
-    diode_append = multi_xas.diode.append
-    i0_append = multi_xas.i0.append
-    sdd1_append = multi_xas.sdd1.append
-    sdd2_append = multi_xas.sdd2.append
-    sdd3_append = multi_xas.sdd3.append
-    sdd4_append = multi_xas.sdd4.append
+    range_array = np.arange(range_start, range_end)
+    start_time = time.time()
 
-    for i in range(range_start, range_end):
-        command = filename.NXentry[i].command
-        if str(command).split(" ")[0] == "cscan":
-            scan_entry_append(str(filename.NXentry[i]).split(":")[1])
-            energy_append(np.array(filename.NXentry[i].instrument.monochromator.en))
-            tey_append(np.array(filename.NXentry[i].instrument.absorbed_beam.tey_r))
-            diode_append(np.array(filename.NXentry[i].instrument.absorbed_beam.pd1_r))
-            i0_append(np.array(filename.NXentry[i].instrument.incoming_beam.io_r))
-            sdd1_append(np.array(filename.NXentry[i].instrument.fluorescence.sdd1))
-            sdd2_append(np.array(filename.NXentry[i].instrument.fluorescence.sdd2))
-            sdd3_append(np.array(filename.NXentry[i].instrument.fluorescence.sdd3))
-            sdd4_append(np.array(filename.NXentry[i].instrument.fluorescence.sdd4))
+    multi_xas.selected_scan_entry = [str(filename.NXentry[i]).split(":")[1] for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
+    print ("check1--- %s seconds ---" % (time.time() - start_time))
+    multi_xas.energy = [np.array(filename.NXentry[i].instrument.monochromator.en) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
+    print ("check2--- %s seconds ---" % (time.time() - start_time))
+    multi_xas.tey = [np.array(filename.NXentry[i].instrument.absorbed_beam.tey_r) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
+    print ("check3--- %s seconds ---" % (time.time() - start_time))
+    multi_xas.diode = [np.array(filename.NXentry[i].instrument.absorbed_beam.pd1_r) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
+    print ("check4--- %s seconds ---" % (time.time() - start_time))
+    multi_xas.i0 = [np.array(filename.NXentry[i].instrument.incoming_beam.io_r) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
+    print ("check5--- %s seconds ---" % (time.time() - start_time))
+    multi_xas.sdd1 = [np.array(filename.NXentry[i].instrument.fluorescence.sdd1) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
+    print ("check6--- %s seconds ---" % (time.time() - start_time))
+    multi_xas.sdd2 = [np.array(filename.NXentry[i].instrument.fluorescence.sdd2) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
+    print ("check7--- %s seconds ---" % (time.time() - start_time))
+    multi_xas.sdd3 = [np.array(filename.NXentry[i].instrument.fluorescence.sdd3) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
+    print ("check8--- %s seconds ---" % (time.time() - start_time))
+    multi_xas.sdd4 = [np.array(filename.NXentry[i].instrument.fluorescence.sdd4) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
+    print ("check9--- %s seconds ---" % (time.time() - start_time))
+
+    # for i in range(range_start, range_end):
+    #     command = filename.NXentry[i].command
+    #     if str(command).split(" ")[0] == "cscan":
+    #         multi_xas.selected_scan_entry.append(str(filename.NXentry[i]).split(":")[1])
+    #         multi_xas.energy.append(np.array(np.array(filename.NXentry[i].instrument.monochromator.en)))
+    #         multi_xas.tey.append(np.array(np.array(filename.NXentry[i].instrument.absorbed_beam.tey_r)))
+    #         multi_xas.diode.append(np.array(np.array(filename.NXentry[i].instrument.absorbed_beam.pd1_r)))
+    #         multi_xas.i0.append(np.array(np.array(filename.NXentry[i].instrument.incoming_beam.io_r)))
+    #         multi_xas.sdd1.append(np.array(np.array(filename.NXentry[i].instrument.fluorescence.sdd1)))
+    #         multi_xas.sdd2.append(np.array(np.array(filename.NXentry[i].instrument.fluorescence.sdd2)))
+    #         multi_xas.sdd3.append(np.array(np.array(filename.NXentry[i].instrument.fluorescence.sdd3)))
+    #         multi_xas.sdd4.append(np.array(np.array(filename.NXentry[i].instrument.fluorescence.sdd4)))
 
     return multi_xas
 
@@ -97,17 +109,26 @@ class MultiXAS(XAS):
       self.selected_scan_entry = None
 
    def getpfy(self, roi_start, roi_end):
-      self.pfy_sdd1 = [[] for i in range(len(self.sdd1) )]
-      self.pfy_sdd2 = [[] for i in range(len(self.sdd2) )]
-      self.pfy_sdd3 = [[] for i in range(len(self.sdd3) )]
-      self.pfy_sdd4 = [[] for i in range(len(self.sdd4) )]
+      roi_start = roi_start-1
+      sdd_length = len(self.sdd1)
+      self.pfy_sdd1 = [[] for i in range(sdd_length)]
+      self.pfy_sdd2 = [[] for i in range(sdd_length)]
+      self.pfy_sdd3 = [[] for i in range(sdd_length)]
+      self.pfy_sdd4 = [[] for i in range(sdd_length)]
 
-      for i in range(0, len(self.sdd1)):
-         for j in range (len(self.sdd1[i])):
-            self.pfy_sdd1[i].append(np.sum(self.sdd1[i][j][roi_start:roi_end]))
-            self.pfy_sdd2[i].append(np.sum(self.sdd2[i][j][roi_start:roi_end]))
-            self.pfy_sdd3[i].append(np.sum(self.sdd3[i][j][roi_start:roi_end]))
-            self.pfy_sdd4[i].append(np.sum(self.sdd4[i][j][roi_start:roi_end]))
+      [self.pfy_sdd1[i].append(np.sum(self.sdd1[i][j][roi_start:roi_end])) for i in np.arange(0, sdd_length) for j in np.arange(0, len(self.sdd1[i]))]
+      [self.pfy_sdd2[i].append(np.sum(self.sdd2[i][j][roi_start:roi_end])) for i in np.arange(0, sdd_length) for j in np.arange(0, len(self.sdd2[i]))]
+      [self.pfy_sdd3[i].append(np.sum(self.sdd3[i][j][roi_start:roi_end])) for i in np.arange(0, sdd_length) for j in np.arange(0, len(self.sdd3[i]))]
+      [self.pfy_sdd4[i].append(np.sum(self.sdd4[i][j][roi_start:roi_end])) for i in np.arange(0, sdd_length) for j in np.arange(0, len(self.sdd4[i]))]
+
+      print ("check length of pfy_sdd1[0]:  "+ str(len(self.pfy_sdd1[0])))
+
+      # for i in range(0, len(self.sdd1)):
+      #    for j in range (len(self.sdd1[i])):
+      #       self.pfy_sdd1[i].append(np.sum(self.sdd1[i][j][roi_start:roi_end]))
+      #       self.pfy_sdd2[i].append(np.sum(self.sdd2[i][j][roi_start:roi_end]))
+      #       self.pfy_sdd3[i].append(np.sum(self.sdd3[i][j][roi_start:roi_end]))
+      #       self.pfy_sdd4[i].append(np.sum(self.sdd4[i][j][roi_start:roi_end]))
 
    def summary_plot(self, name):
     start_time = time.time()
