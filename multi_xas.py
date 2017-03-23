@@ -4,7 +4,44 @@ import matplotlib.ticker as plticker
 from cStringIO import StringIO
 import time
 from nexpy.gui.plotview import NXPlotView
+from threading import Thread
 
+list1=list()
+list2=list()
+list3=list()
+list4=list()
+
+def get_sdd1(filename, range_array):
+    global list1
+    for i in range(range_array[0], range_array[-1]+1):
+        command = filename.NXentry[i].command
+        if str(command).split(" ")[0] == "cscan":
+            list1.append(np.array(np.array(filename.NXentry[i].instrument.fluorescence.sdd1)))
+    print ("Length of list1: "+str(len(list1)))
+
+def get_sdd2(filename,range_array):
+    global list2
+    for i in range(range_array[0], range_array[-1]+1):
+        command = filename.NXentry[i].command
+        if str(command).split(" ")[0] == "cscan":
+            list2.append(np.array(np.array(filename.NXentry[i].instrument.fluorescence.sdd2)))
+    print ("Length of list2: "+str(len(list2)))
+
+def get_sdd3(filename,range_array):
+    global list3
+    for i in range(range_array[0], range_array[-1]+1):
+        command = filename.NXentry[i].command
+        if str(command).split(" ")[0] == "cscan":
+            list3.append(np.array(np.array(filename.NXentry[i].instrument.fluorescence.sdd3)))
+    print ("Length of list3: "+str(len(list3)))
+
+def get_sdd4(filename,range_array):
+    global list4
+    for i in range(range_array[0], range_array[-1]+1):
+        command = filename.NXentry[i].command
+        if str(command).split(" ")[0] == "cscan":
+            list4.append(np.array(np.array(filename.NXentry[i].instrument.fluorescence.sdd4)))
+    print ("Length of list4: "+str(len(list4)))
 
 def getMultiXAS(filename, range_start = None, range_end = None):
 
@@ -30,6 +67,15 @@ def getMultiXAS(filename, range_start = None, range_end = None):
     range_array = np.arange(range_start, range_end)
     start_time = time.time()
 
+    Thread(target=get_sdd1, args=(filename, range_array,)).start()
+    print("Thread 1 started")
+    Thread(target=get_sdd2, args=(filename, range_array,)).start()
+    print("Thread 2 started")
+    Thread(target=get_sdd3, args=(filename, range_array,)).start()
+    print("Thread 3 started")
+    Thread(target=get_sdd4, args=(filename, range_array,)).start()
+    print("Thread 4 started")
+
     multi_xas.selected_scan_entry = [str(filename.NXentry[i]).split(":")[1] for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
     print ("check1--- %s seconds ---" % (time.time() - start_time))
     multi_xas.energy = [np.array(filename.NXentry[i].instrument.monochromator.en) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
@@ -40,14 +86,16 @@ def getMultiXAS(filename, range_start = None, range_end = None):
     print ("check4--- %s seconds ---" % (time.time() - start_time))
     multi_xas.i0 = [np.array(filename.NXentry[i].instrument.incoming_beam.io_r) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
     print ("check5--- %s seconds ---" % (time.time() - start_time))
-    multi_xas.sdd1 = [np.array(filename.NXentry[i].instrument.fluorescence.sdd1) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
+
+    # multi_xas.sdd1 = [np.array(filename.NXentry[i].instrument.fluorescence.sdd1) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
+    # multi_xas.sdd2 = [np.array(filename.NXentry[i].instrument.fluorescence.sdd2) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
+    # multi_xas.sdd3 = [np.array(filename.NXentry[i].instrument.fluorescence.sdd3) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
+    # multi_xas.sdd4 = [np.array(filename.NXentry[i].instrument.fluorescence.sdd4) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
+    multi_xas.sdd1 = list1
+    multi_xas.sdd2 = list2
+    multi_xas.sdd3 = list3
+    multi_xas.sdd4 = list4
     print ("check6--- %s seconds ---" % (time.time() - start_time))
-    multi_xas.sdd2 = [np.array(filename.NXentry[i].instrument.fluorescence.sdd2) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
-    print ("check7--- %s seconds ---" % (time.time() - start_time))
-    multi_xas.sdd3 = [np.array(filename.NXentry[i].instrument.fluorescence.sdd3) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
-    print ("check8--- %s seconds ---" % (time.time() - start_time))
-    multi_xas.sdd4 = [np.array(filename.NXentry[i].instrument.fluorescence.sdd4) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
-    print ("check9--- %s seconds ---" % (time.time() - start_time))
 
     # for i in range(range_start, range_end):
     #     command = filename.NXentry[i].command
