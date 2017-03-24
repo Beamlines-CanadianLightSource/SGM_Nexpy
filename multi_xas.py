@@ -4,6 +4,7 @@ import matplotlib.ticker as plticker
 from cStringIO import StringIO
 import time
 from nexpy.gui.plotview import NXPlotView
+from multiprocessing import Process, Manager
 
 
 def getMultiXAS(filename, range_start = None, range_end = None):
@@ -40,7 +41,14 @@ def getMultiXAS(filename, range_start = None, range_end = None):
     print ("check4--- %s seconds ---" % (time.time() - start_time))
     multi_xas.i0 = [np.array(filename.NXentry[i].instrument.incoming_beam.io_r) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
     print ("check5--- %s seconds ---" % (time.time() - start_time))
-    multi_xas.sdd1 = [np.array(filename.NXentry[i].instrument.fluorescence.sdd1) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
+
+
+    manager = Manager()
+    return_dict = manager.dict()
+    # jobs = []
+    Process(target=get_sdd1, args=(filename, range_array, return_dict)).start()
+    multi_xas.sdd1 = return_dict.values()
+    # multi_xas.sdd1 = [np.array(filename.NXentry[i].instrument.fluorescence.sdd1) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
     print ("check6--- %s seconds ---" % (time.time() - start_time))
     multi_xas.sdd2 = [np.array(filename.NXentry[i].instrument.fluorescence.sdd2) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
     print ("check7--- %s seconds ---" % (time.time() - start_time))
@@ -62,7 +70,12 @@ def getMultiXAS(filename, range_start = None, range_end = None):
     #         multi_xas.sdd3.append(np.array(np.array(filename.NXentry[i].instrument.fluorescence.sdd3)))
     #         multi_xas.sdd4.append(np.array(np.array(filename.NXentry[i].instrument.fluorescence.sdd4)))
 
+    multi_xas.sdd1 = return_dict[0]
+
     return multi_xas
+
+def get_sdd1(filename, range_array, return_dict):
+    return_dict[0] = [np.array(filename.NXentry[i].instrument.fluorescence.sdd1) for i in range_array if str(filename.NXentry[i].command).split(" ")[0] == "cscan"]
 
 
 def getSingleXAS(filename, i):
@@ -121,7 +134,7 @@ class MultiXAS(XAS):
       [self.pfy_sdd3[i].append(np.sum(self.sdd3[i][j][roi_start:roi_end])) for i in np.arange(0, sdd_length) for j in np.arange(0, len(self.sdd3[i]))]
       [self.pfy_sdd4[i].append(np.sum(self.sdd4[i][j][roi_start:roi_end])) for i in np.arange(0, sdd_length) for j in np.arange(0, len(self.sdd4[i]))]
 
-      print ("check length of pfy_sdd1[0]:  "+ str(len(self.pfy_sdd1[0])))
+      # print ("check length of pfy_sdd1[0]:  "+ str(len(self.pfy_sdd1[0])))
 
       # for i in range(0, len(self.sdd1)):
       #    for j in range (len(self.sdd1[i])):
