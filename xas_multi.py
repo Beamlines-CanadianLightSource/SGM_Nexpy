@@ -302,30 +302,53 @@ class MultiXasDialog(BaseDialog):
     def roi_peak_slider(self, text='ROI Peak :'):
         roi_peak_layout = QtGui.QHBoxLayout()
         roi_peak_layout.addWidget(QtGui.QLabel(text))
+        # widget = QtGui.QWidget()
         self.roi_peak = QtGui.QSlider(Qt.Horizontal)
-        self.pLabel = QtGui.QLineEdit()
-        self.pLabel.setFixedWidth(30)
-        self.pLabel.setText('800')
-        self.pLabel.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum))
-        self.pLabel.setAlignment(Qt.AlignRight)
+
         self.roi_peak.setMinimum(0)
         self.roi_peak.setMaximum(256)
         self.roi_peak.setValue(80)
         self.roi_peak.setTickPosition(QtGui.QSlider.TicksBelow)
         self.roi_peak.setTickInterval(50)
         roi_peak_layout.addWidget(self.roi_peak)
-        self.roi_peak.valueChanged.connect(self.setRoi)
+        # event listener to update text based on the value of slider
+        self.roi_peak.sliderMoved.connect(self.setRoi)
+
+        self.pLabel = QtGui.QLineEdit()
+        # self.pLabel.setValidator(QtGui.QIntValidator(1, 2560, self))
+
+        self.pLabel.setFixedWidth(40)
+        self.pLabel.setText('800')
+        self.pLabel.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum))
+        self.pLabel.setAlignment(Qt.AlignRight)
         self.pUnits = QtGui.QLabel('eV')
         roi_peak_layout.addWidget(self.pLabel)
         roi_peak_layout.addWidget(self.pUnits)
+        # event listener to update slider based on text
+        self.pLabel.textEdited.connect(self.update_roi)
+
         return roi_peak_layout
+
+    def update_roi(self):
+        print ("executed update_roi")
+        if self.pLabel.text() != '':
+            value = int(self.pLabel.text())
+            if value < 0:
+                value = 0
+                self.pLabel.setText(str(value))
+            if value > 2560:
+                value = 2560
+                self.pLabel.setText(str(value))
+            value = value/10
+            self.roi_peak.setValue(value)
+
 
     def roi_width_slider(self, text='ROI Width :'):
         roi_width_layout = QtGui.QHBoxLayout()
         roi_width_layout.addWidget(QtGui.QLabel(text))
         self.roi_width = QtGui.QSlider(Qt.Horizontal)
         self.wLabel = QtGui.QLineEdit()
-        self.wLabel.setFixedWidth(30)
+        self.wLabel.setFixedWidth(40)
         self.wLabel.setText('200')
         self.wLabel.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum))
         self.wLabel.setAlignment(Qt.AlignRight)
@@ -344,17 +367,17 @@ class MultiXasDialog(BaseDialog):
     def setRoi(self):
         self.roi_width_label()
         self.roi_peak_label()
-        return self.roi_dn, self.roi_up 
+        # return self.roi_dn, self.roi_up
   
     def roi_peak_label(self):
-        self.roi_peak.setValue(self.peak)
+        # self.roi_peak.setValue(self.peak)
         self.pLabel.setText(str(self.peak) + '0')
-        return self.pLabel
+        # return self.pLabel
 
     def roi_width_label(self):
         self.roi_width.setValue(self.width)
         self.wLabel.setText(str(self.width) + '0')
-        return self.wLabel
+        # return self.wLabel
  
     def plot_sum(self):
         self.xas = multi_xas.getMultiXAS(self.root, range_start = self.start, range_end = self.end)
