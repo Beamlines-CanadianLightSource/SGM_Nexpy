@@ -302,21 +302,19 @@ class MultiXasDialog(BaseDialog):
     def roi_peak_slider(self, text='ROI Peak :'):
         roi_peak_layout = QtGui.QHBoxLayout()
         roi_peak_layout.addWidget(QtGui.QLabel(text))
-        # widget = QtGui.QWidget()
         self.roi_peak = QtGui.QSlider(Qt.Horizontal)
 
-        self.roi_peak.setMinimum(0)
+        self.roi_peak.setMinimum(1)
         self.roi_peak.setMaximum(256)
         self.roi_peak.setValue(80)
         self.roi_peak.setTickPosition(QtGui.QSlider.TicksBelow)
-        self.roi_peak.setTickInterval(50)
+        self.roi_peak.setTickInterval(25)
         roi_peak_layout.addWidget(self.roi_peak)
         # event listener to update text based on the value of slider
         self.roi_peak.sliderMoved.connect(self.setRoi)
 
         self.pLabel = QtGui.QLineEdit()
         # self.pLabel.setValidator(QtGui.QIntValidator(1, 2560, self))
-
         self.pLabel.setFixedWidth(40)
         self.pLabel.setText('800')
         self.pLabel.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum))
@@ -324,46 +322,68 @@ class MultiXasDialog(BaseDialog):
         self.pUnits = QtGui.QLabel('eV')
         roi_peak_layout.addWidget(self.pLabel)
         roi_peak_layout.addWidget(self.pUnits)
-        # event listener to update slider based on text
-        self.pLabel.textEdited.connect(self.update_roi)
+        # event listener to update slider based on the value in textbox
+        self.pLabel.textEdited.connect(self.update_roi_peak)
+        self.pLabel.editingFinished.connect(self.update_roi_peak_textbox)
 
         return roi_peak_layout
 
-    def update_roi(self):
+    def update_roi_peak(self):
         print ("executed update_roi")
         if self.pLabel.text() != '':
             value = int(self.pLabel.text())
-            if value < 0:
-                value = 0
-                self.pLabel.setText(str(value))
+            if value < 10:
+                value = 10
             if value > 2560:
                 value = 2560
-                self.pLabel.setText(str(value))
             value = value/10
             self.roi_peak.setValue(value)
 
+    def update_roi_peak_textbox(self):
+        value = self.roi_peak.value()*10
+        self.pLabel.setText(str(value))
 
     def roi_width_slider(self, text='ROI Width :'):
         roi_width_layout = QtGui.QHBoxLayout()
         roi_width_layout.addWidget(QtGui.QLabel(text))
         self.roi_width = QtGui.QSlider(Qt.Horizontal)
+
+        self.roi_width.setMinimum(2)
+        self.roi_width.setMaximum(100)
+        self.roi_width.setValue(20)
+        self.roi_width.setTickPosition(QtGui.QSlider.TicksBelow)
+        self.roi_width.setTickInterval(10)
+        roi_width_layout.addWidget(self.roi_width)
+        self.roi_width.sliderMoved.connect(self.setRoi)
+
         self.wLabel = QtGui.QLineEdit()
         self.wLabel.setFixedWidth(40)
         self.wLabel.setText('200')
         self.wLabel.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum))
         self.wLabel.setAlignment(Qt.AlignRight)
-        self.roi_width.setMinimum(2)
-        self.roi_width.setMaximum(100)
-        self.roi_width.setValue(20)
-        self.roi_width.setTickPosition(QtGui.QSlider.TicksBelow)
-        self.roi_peak.setTickInterval(1)
-        roi_width_layout.addWidget(self.roi_width)
-        self.roi_width.valueChanged.connect(self.setRoi)
         self.wUnits = QtGui.QLabel('eV')
         roi_width_layout.addWidget(self.wLabel)
         roi_width_layout.addWidget(self.wUnits)
+        # event listener to update slider based on the value in textbox
+        self.wLabel.textEdited.connect(self.update_roi_width)
+        self.wLabel.editingFinished.connect(self.update_roi_width_textbox)
         return roi_width_layout
-   
+
+    def update_roi_width(self):
+        print ("executed update_roi")
+        if self.wLabel.text() != '':
+            value = int(self.wLabel.text())
+            if value < 20:
+                value = 20
+            if value > 1000:
+                value = 1000
+            value = value/10
+            self.roi_width.setValue(value)
+
+    def update_roi_width_textbox(self):
+        value = self.roi_width.value()*10
+        self.wLabel.setText(str(value))
+
     def setRoi(self):
         self.roi_width_label()
         self.roi_peak_label()
@@ -375,7 +395,7 @@ class MultiXasDialog(BaseDialog):
         # return self.pLabel
 
     def roi_width_label(self):
-        self.roi_width.setValue(self.width)
+        # self.roi_width.setValue(self.width)
         self.wLabel.setText(str(self.width) + '0')
         # return self.wLabel
  
