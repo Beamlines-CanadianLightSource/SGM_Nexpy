@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
-from cStringIO import StringIO
+from io import StringIO
 import time
 from nexpy.gui.plotview import NXPlotView
 # from matplotlib.figure import Figure
@@ -137,7 +137,7 @@ class MultiXAS(XAS):
     ax.axes.get_xaxis().set_visible(True)
     ax.axes.get_yaxis().set_visible(True)
 
-    print ("--- %s seconds ---" % (time.time() - start_time))
+    print(("--- %s seconds ---" % (time.time() - start_time)))
 
     energy_tuple = np.array(self.energy[0][:])
     intensity_tuple = np.array(intensity[0][:])
@@ -173,11 +173,11 @@ class MultiXAS(XAS):
     ax.set_xlabel('Incident Energy(eV)')
     ax.set_ylabel('Scan Entry')
     # set limit of y axis
-    print ("selected_scan_entry: ", self.selected_scan_entry)
+    print(("selected_scan_entry: ", self.selected_scan_entry))
 
     plotview.grid(True)
     plotview.draw()
-    print("--- %s seconds ---" % (time.time() - start_time))
+    print(("--- %s seconds ---" % (time.time() - start_time)))
 
 
 class SingleXAS(XAS):
@@ -233,13 +233,13 @@ def eem(multi_xas, name):
     ax.axes.get_yaxis().set_visible(True)
     # print("--- %s seconds ---" % (time.time() - start_time))
     ax.scatter(bin_num_for_x, bin_num_for_y, c=intensity, s=7, linewidths=0, vmax=v_max, vmin=0)
-    print("--- %s seconds ---" % (time.time() - start_time))
+    print(("--- %s seconds ---" % (time.time() - start_time)))
     ax.set_xlabel('Incident Energy (eV)')
     ax.set_ylabel('Emission Energy (eV)')
     ax.set_title("Excitation Emission Matrix")
     plotview.grid()
     plotview.draw()
-    print("--- %s seconds ---" % (time.time() - start_time))
+    print(("--- %s seconds ---" % (time.time() - start_time)))
 
 
 def get_good_scan(multi_xas, bad_scan_string):
@@ -247,7 +247,7 @@ def get_good_scan(multi_xas, bad_scan_string):
     print (bad_scan_list)
     scan_num_list = multi_xas.selected_scan_entry
     length = len(scan_num_list)
-    good_scan_index = range(0, length, 1)
+    good_scan_index = list(range(0, length, 1))
     good_scan_list = multi_xas.selected_scan_entry[:]
     for i in range (length):
         for j in range(len(bad_scan_list)):
@@ -256,8 +256,8 @@ def get_good_scan(multi_xas, bad_scan_string):
             if scan_num_list[i] == 'entry'+ str(bad_scan_list[j]):
                 good_scan_list.remove('entry'+ str(bad_scan_list[j]))
                 good_scan_index.remove(i)
-    print ("good_scan_list: ", good_scan_list)
-    print ("good_scan_index: ",good_scan_index)
+    print(("good_scan_list: ", good_scan_list))
+    print(("good_scan_index: ",good_scan_index))
     return get_good_scan_data(multi_xas, good_scan_index, good_scan_list)
 
 
@@ -306,11 +306,11 @@ def create_bins(start_energy, end_energy, bin_interval):
     end_energy = int(end_energy)
     print ("Start creating bins")
     num_of_bins = int ((end_energy-start_energy) / bin_interval)
-    print num_of_bins
+    print(num_of_bins)
     num_of_edges = num_of_bins + 1
     # print ("Number of Bins:", num_of_bins)
     # print ("Number of Edges:", num_of_edges)
-    print ("Energy range is: ", start_energy, "-", end_energy)
+    print(("Energy range is: ", start_energy, "-", end_energy))
     edges_array = np.linspace(start_energy, end_energy, num_of_edges)
 
     # generate mean of bins
@@ -348,13 +348,13 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
     pfy_sdd4_array = np.array(xas.pfy_sdd4)
 
     total_scan_num = len(energy_array)
-    print total_scan_num
+    print(total_scan_num)
 
     bin_array = [[] for i in range(num_of_bins)]
     temp_bin_array = [[[] for i in range(num_of_bins)] for j in range(total_scan_num)]
     bin_width = (edges_array[-1] - edges_array[0]) / num_of_bins
     # print ("The width of a bin is:", bin_width)
-    print("--- %s seconds ---" % (time.time() - start_time))
+    print(("--- %s seconds ---" % (time.time() - start_time)))
 
     # interation to assign data into bins
     print ("Start assigning data points into bins")
@@ -426,7 +426,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
                 pfy_sdd4_sum = pfy_sdd4_sum + pfy_sdd4_array[scan_index][temp_bin_array[scan_index][bin_num][i]]
 
             if (counts==0):
-                print ("No data point is in Bin No." + str(bin_num + 1)+ "for scan: "+ str(scan_index+1) + ". Average calculation is not necessary")
+                print(("No data point is in Bin No." + str(bin_num + 1)+ "for scan: "+ str(scan_index+1) + ". Average calculation is not necessary"))
                 tey_bin_array[bin_num] = tey_bin_array[bin_num]
                 i0_bin_array[bin_num] = i0_bin_array[bin_num]
                 diode_bin_array[bin_num] = diode_bin_array[bin_num]
@@ -456,7 +456,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
                 pfy_sdd3_bin_array[bin_num] = pfy_sdd3_bin_array[bin_num] + pfy_sdd3_avg
                 pfy_sdd4_bin_array[bin_num] = pfy_sdd4_bin_array[bin_num] + pfy_sdd4_avg
 
-    print("--- %s seconds ---" % (time.time() - start_time))
+    print(("--- %s seconds ---" % (time.time() - start_time)))
     print (tey_bin_array)
 
     # Calculate average
@@ -468,7 +468,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
 
         if total_data_point == 0:
             empty_bins = empty_bins + 1
-            print ("No data point is in Bin No."+ str(index + 1) + ". Average calculation is not necessary")
+            print(("No data point is in Bin No."+ str(index + 1) + ". Average calculation is not necessary"))
         elif scan_index==1:
             print ("No average calculation if there is only 1 scan.")
         else:
@@ -537,7 +537,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
         bin_xas.pfy_sdd4 = pfy_sdd4_bin_array
 
     print ("Assign and calculate data points completed\n")
-    print ("--- %s seconds ---" % (time.time() - start_time))
+    print(("--- %s seconds ---" % (time.time() - start_time)))
     return bin_xas
 
 

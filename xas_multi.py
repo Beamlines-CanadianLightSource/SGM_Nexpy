@@ -6,7 +6,7 @@ from nexpy.gui.utils import report_error
 # from nexusformat.nexus import nxload, NeXusError, NXentry, NXdata, NXroot, NXfield
 from nexusformat.nexus.tree import *
 from . import multi_xas
-from customize_gui import QHLine
+from .customize_gui import QHLine
 
 
 def show_dialog(parent=None):
@@ -317,13 +317,13 @@ class MultiXasDialog(BaseDialog):
     def plot_sum(self):
         self.xas = multi_xas.getMultiXAS(self.root, range_start = self.start, range_end = self.end)
         self.xas.getpfy(self.roi_dn, self.roi_up)
-        print (self.sum_det)
+        print((self.sum_det))
         self.xas.summary_plot(self.sum_det)
         # return
 
     def plot_eems(self):
 
-        print ("Entry of summary plot is: ", self.eem_entry -1)
+        print(("Entry of summary plot is: ", self.eem_entry -1))
         self.xas = multi_xas.getSingleXAS(self.root, self.eem_entry -1)
         multi_xas.eem(self.xas, self.sdd)
         return self.xas
@@ -349,7 +349,7 @@ class MultiXasDialog(BaseDialog):
     def avg_xas(self):
         self.xas = multi_xas.getMultiXAS(self.root, range_start = self.start, range_end = self.end)
         self.xas.getpfy(self.roi_dn, self.roi_up)
-        print self.bad_scan_str
+        print(self.bad_scan_str)
         good_xas = multi_xas.get_good_scan(self.xas, bad_scan_string=self.bad_scan_str)
         self.bin_xas = multi_xas.binned_xas(good_xas, start_energy=self.start_en, end_energy=self.end_en,bin_interval=0.1)
         multi_xas.plot_avg_xas_all(self.bin_xas)

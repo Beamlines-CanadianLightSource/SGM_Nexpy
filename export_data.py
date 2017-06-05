@@ -6,7 +6,7 @@ import time
 def export_xas (xas, filename):
     cwd = os.getcwd()
     export_file_path = filename
-    print ("export to: " + export_file_path)
+    print(("export to: " + export_file_path))
 
     with open(export_file_path, "w") as out_file:
         out_file.write("# Energy\tTEY\tI0\tDiode\tPFY_SDD1\tPFY_SDD2\tPFY_SDD3\tPFY_SDD4\n")
@@ -37,7 +37,7 @@ def export_xas (xas, filename):
 def export_normalized_data(export_data, filename):
     cwd = os.getcwd()
     export_file_path = cwd+"/"+filename+".xas"
-    print ("export to: " + export_file_path)
+    print(("export to: " + export_file_path))
 
     with open(export_file_path, "w") as out_file:
         out_file.write("# Beamline.file-content: Normalized " + export_data.dividend + "\n")
