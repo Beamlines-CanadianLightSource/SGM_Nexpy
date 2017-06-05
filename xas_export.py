@@ -1,9 +1,7 @@
-import numpy as np
-from nexpy.gui.pyqt import QtGui
-from nexpy.gui.datadialogs import BaseDialog, GridParameters
+from PyQt5.QtWidgets import QFileDialog
+from nexpy.gui.datadialogs import BaseDialog
 from nexpy.gui.utils import report_error
-from nexusformat.nexus import nxload, NeXusError, NXentry, NXdata, NXroot, NXfield
-from nexusformat.nexus.tree import * 
+from nexusformat.nexus.tree import *
 from . import export_data, multi_xas
 
 def show_dialog(parent=None):
@@ -39,7 +37,7 @@ class ExpDialog(BaseDialog):
     
     def accept(self):
         try:
-           filename = QtGui.QFileDialog.getSaveFileName(self, "Export File", "data.xas", filter ="xas (*.xas *.)")
+           filename = QFileDialog.getSaveFileName(self, "Export File", "data.xas", filter ="xas (*.xas *.)")
            export_data.export_xas(self.xas, filename)
            super(ExpDialog, self).accept()
         except NeXusError as error:

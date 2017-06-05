@@ -1,9 +1,8 @@
 import numpy as np
-from nexpy.gui.pyqt import QtGui
-from PyQt4.QtCore import *
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import QPushButton,QLineEdit,QVBoxLayout,QHBoxLayout,QLabel,QComboBox, QSlider
 from nexpy.gui.datadialogs import BaseDialog, GridParameters
 from nexpy.gui.utils import report_error
-# from nexusformat.nexus import nxload, NeXusError, NXentry, NXdata, NXroot, NXfield
 from nexusformat.nexus.tree import *
 from . import multi_xas
 from customize_gui import QHLine
@@ -22,7 +21,7 @@ class MultiXasDialog(BaseDialog):
     def __init__(self, parent=None):
         
         super(MultiXasDialog, self).__init__(parent)
-        layout = QtGui.QVBoxLayout()
+        layout = QVBoxLayout()
 
         self.h_line = QHLine()
         self.h_line2 = QHLine()
@@ -37,34 +36,34 @@ class MultiXasDialog(BaseDialog):
         self.roi_peak_slider()
         self.roi_width_slider()
         
-        self.pb_ploteems = QtGui.QPushButton()
+        self.pb_ploteems = QPushButton()
         self.pb_ploteems.setObjectName("plot eems")
         self.pb_ploteems.setText("Plot EEMS")
 
-        self.pb_getsumplot = QtGui.QPushButton()
+        self.pb_getsumplot = QPushButton()
         self.pb_getsumplot.setObjectName("summary plot")
         self.pb_getsumplot.setText("Summary Plot")
 
-        self.pb_get_averaged = QtGui.QPushButton()
+        self.pb_get_averaged = QPushButton()
         self.pb_get_averaged.setObjectName("interpolated plots")
         self.pb_get_averaged.setText("Interpolated Plots")
 
-        self.pb_get_single_averaged = QtGui.QPushButton()
+        self.pb_get_single_averaged = QPushButton()
         self.pb_get_single_averaged.setObjectName("single interpolated plot")
         self.pb_get_single_averaged.setText("Single Interpolated Plot")
 
-        self.pb_get_normalized = QtGui.QPushButton()
+        self.pb_get_normalized = QPushButton()
         self.pb_get_normalized.setObjectName("normalized data")
         self.pb_get_normalized.setText("Normalized Data")
 
-        self.bad_scans = QtGui.QLineEdit()
+        self.bad_scans = QLineEdit()
         self.bad_scans.setObjectName("Bad Scans")
 
         layout.addLayout(self.root_layout)
         layout.addLayout(self.select_sdd())
         layout.addLayout(self.select_eem_entry())
         layout.addWidget(self.pb_ploteems)
-        layout.addWidget(self.h_line)
+        #layout.addWidget(self.h_line)
 
         layout.addLayout(self.entry_num_layout)
         layout.addLayout(self.other_entry_num_layout)
@@ -76,8 +75,8 @@ class MultiXasDialog(BaseDialog):
         layout.addWidget(self.pb_getsumplot)
         layout.addWidget(self.h_line2)
 
-        bad_scan_layout = QtGui.QHBoxLayout()
-        bad_scan_layout.addWidget(QtGui.QLabel('Bad Scans : '))
+        bad_scan_layout = QHBoxLayout()
+        bad_scan_layout.addWidget(QLabel('Bad Scans : '))
         bad_scan_layout.addWidget(self.bad_scans)
         layout.addLayout(bad_scan_layout)
         layout.addWidget(self.pb_get_averaged)
@@ -130,16 +129,16 @@ class MultiXasDialog(BaseDialog):
 
     # drop down menu to select entry for summary plot and interpolated plot
     def select_entry_num(self, text= 'Select Entry :', other=False):
-        layout = QtGui.QHBoxLayout()
-        box = QtGui.QComboBox()
-        box.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
+        layout = QHBoxLayout()
+        box = QComboBox()
+        box.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         entries = []
         for entry in range(len(self.root.NXentry)):
             entries.append(entry)
         for entry in sorted(entries):
             box.addItem(str(entry + 1))
         
-        layout.addWidget(QtGui.QLabel(text))
+        layout.addWidget(QLabel(text))
         layout.addWidget(box)
         layout.addStretch()
         if not other:
@@ -157,9 +156,9 @@ class MultiXasDialog(BaseDialog):
 
     # drop down menu to select detector for summary plot
     def select_abs(self, text='Select Detector :'):
-        layout = QtGui.QHBoxLayout()
-        box = QtGui.QComboBox()
-        box.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
+        layout = QHBoxLayout()
+        box = QComboBox()
+        box.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         sdds = ['TEY', 'I0', 'DIODE','PFY_SDD1', 'PFY_SDD2','PFY_SDD3','PFY_SDD4']
         for sdd in sorted(sdds):
             box.addItem(sdd)
@@ -168,16 +167,16 @@ class MultiXasDialog(BaseDialog):
         self.select_abs_box = box
         self.select_abs_layout = layout
 
-        layout.addWidget(QtGui.QLabel(text))
+        layout.addWidget(QLabel(text))
         layout.addWidget(box)
         layout.addStretch()
         return layout
 
     # drop down menu to select sdd
     def select_sdd(self, text='Select SDD :'):
-        layout = QtGui.QHBoxLayout()
-        box = QtGui.QComboBox()
-        box.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
+        layout = QHBoxLayout()
+        box = QComboBox()
+        box.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         sdds = ['SDD1', 'SDD2', 'SDD3','SDD4']
         for sdd in sorted(sdds):
             box.addItem(sdd)
@@ -185,16 +184,16 @@ class MultiXasDialog(BaseDialog):
         self.select_sdd_box = box
         self.select_sdd_layout = layout
 
-        layout.addWidget(QtGui.QLabel(text))
+        layout.addWidget(QLabel(text))
         layout.addWidget(box)
         layout.addStretch()
         return layout
 
     # drop down menu to select sdd entry
     def select_eem_entry(self, text='Select entry :'):
-        layout = QtGui.QHBoxLayout()
-        box = QtGui.QComboBox()
-        box.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
+        layout = QHBoxLayout()
+        box = QComboBox()
+        box.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         entries = []
         for entry in range(len(self.root.NXentry)):
             entries.append(entry)
@@ -204,7 +203,7 @@ class MultiXasDialog(BaseDialog):
         self.select_eem_entry_box = box
         self.select_eem_entry_layout = layout
 
-        layout.addWidget(QtGui.QLabel(text))
+        layout.addWidget(QLabel(text))
         layout.addWidget(box)
         layout.addStretch()
         return layout
@@ -220,10 +219,10 @@ class MultiXasDialog(BaseDialog):
     # drop down menu to select dividend and divisor
     def select_normalization(self, text = 'Normalization: '):
 
-        layout = QtGui.QHBoxLayout()
+        layout = QHBoxLayout()
         # dividend
-        box = QtGui.QComboBox()
-        box.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
+        box = QComboBox()
+        box.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         sdds = ['PFY_SDD1', 'PFY_SDD2','PFY_SDD3','PFY_SDD4']
         for sdd in sorted(sdds):
             box.addItem(sdd)
@@ -232,8 +231,8 @@ class MultiXasDialog(BaseDialog):
         # self.select_abs_layout = layout
 
         # divisor
-        box2 = QtGui.QComboBox()
-        box2.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
+        box2 = QComboBox()
+        box2.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         sdds2 = ['I0', 'TEY', 'DIODE']
         for sdd2 in sorted(sdds2):
             box2.addItem(sdd2)
@@ -241,7 +240,7 @@ class MultiXasDialog(BaseDialog):
         box2.setCurrentIndex(1)
         self.select_divisor_box = box2
 
-        layout.addWidget(QtGui.QLabel(text))
+        layout.addWidget(QLabel(text))
         layout.addWidget(box)
         layout.addWidget(box2)
         layout.addStretch()
@@ -272,14 +271,14 @@ class MultiXasDialog(BaseDialog):
         return dn
 
     def roi_peak_slider(self, text='ROI Peak :'):
-        roi_peak_layout = QtGui.QHBoxLayout()
-        roi_peak_layout.addWidget(QtGui.QLabel(text))
-        self.roi_peak = QtGui.QSlider(Qt.Horizontal)
-        self.pLabel = QtGui.QLabel('800 eV')
+        roi_peak_layout = QHBoxLayout()
+        roi_peak_layout.addWidget(QLabel(text))
+        self.roi_peak = QSlider(Qt.Horizontal)
+        self.pLabel = QLabel('800 eV')
         self.roi_peak.setMinimum(0)
         self.roi_peak.setMaximum(256)
         self.roi_peak.setValue(80)
-        self.roi_peak.setTickPosition(QtGui.QSlider.TicksBelow)
+        self.roi_peak.setTickPosition(QSlider.TicksBelow)
         self.roi_peak.setTickInterval(1)
         roi_peak_layout.addWidget(self.roi_peak)
         self.roi_peak.valueChanged.connect(self.setRoi)
@@ -287,14 +286,14 @@ class MultiXasDialog(BaseDialog):
         return roi_peak_layout
 
     def roi_width_slider(self, text='ROI Width :'):
-        roi_width_layout = QtGui.QHBoxLayout()
-        roi_width_layout.addWidget(QtGui.QLabel(text))
-        self.roi_width = QtGui.QSlider(Qt.Horizontal)
-        self.wLabel = QtGui.QLabel('200 eV')
+        roi_width_layout = QHBoxLayout()
+        roi_width_layout.addWidget(QLabel(text))
+        self.roi_width = QSlider(Qt.Horizontal)
+        self.wLabel = QLabel('200 eV')
         self.roi_width.setMinimum(2)
         self.roi_width.setMaximum(100)
         self.roi_width.setValue(20)
-        self.roi_width.setTickPosition(QtGui.QSlider.TicksBelow)
+        self.roi_width.setTickPosition(QSlider.TicksBelow)
         self.roi_peak.setTickInterval(1)
         roi_width_layout.addWidget(self.roi_width)
         self.roi_width.valueChanged.connect(self.setRoi)

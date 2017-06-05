@@ -1,14 +1,12 @@
-import numpy as np
 import os
-import time
 
 
 def export_xas (xas, filename):
     cwd = os.getcwd()
     export_file_path = filename
-    print ("export to: " + export_file_path)
+    print ("export to: " , export_file_path[0])
 
-    with open(export_file_path, "w") as out_file:
+    with open(export_file_path[0], "w") as out_file:
         out_file.write("# Energy\tTEY\tI0\tDiode\tPFY_SDD1\tPFY_SDD2\tPFY_SDD3\tPFY_SDD4\n")
         for i in range(0, len(xas.energy)):
             out_string = ""
@@ -36,7 +34,7 @@ def export_xas (xas, filename):
 
 def export_normalized_data(export_data, filename):
     cwd = os.getcwd()
-    export_file_path = cwd+"/"+filename+".xas"
+    export_file_path = cwd+"/"+filename[0]+".xas"
     print ("export to: " + export_file_path)
 
     with open(export_file_path, "w") as out_file:
