@@ -1,12 +1,11 @@
 from __future__ import print_function
 import numpy as np
 from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QPushButton,QLineEdit,QVBoxLayout,QHBoxLayout,QLabel,QComboBox, QSlider
+from PyQt5.QtWidgets import QPushButton,QLineEdit,QVBoxLayout,QHBoxLayout,QLabel,QComboBox, QSlider, QFrame
 from nexpy.gui.datadialogs import BaseDialog
 from nexpy.gui.utils import report_error
 from nexusformat.nexus.tree import *
-import multi_xas
-from customize_gui import QHLine
+from . import multi_xas
 
 
 def show_dialog(parent=None):
@@ -24,10 +23,17 @@ class MultiXasDialog(BaseDialog):
         super(MultiXasDialog, self).__init__(parent)
         layout = QVBoxLayout()
 
-        self.h_line = QHLine()
-        self.h_line2 = QHLine()
-        self.h_line3 = QHLine()
-       
+        self.h_line = QFrame()
+        self.h_line.setFrameShape(QFrame.HLine)
+        self.h_line.setFrameShadow(QFrame.Sunken)
+        self.h_line2 = QFrame()
+        self.h_line2.setFrameShape(QFrame.HLine)
+        self.h_line2.setFrameShadow(QFrame.Sunken)
+        self.h_line3 = QFrame()
+        self.h_line3.setFrameShape(QFrame.HLine)
+        self.h_line3.setFrameShadow(QFrame.Sunken)
+
+
         self.select_root(text='Select File :')
         self.select_entry_num(text='First Entry :')
         self.select_entry_num(text='Last Entry :', other=True)
@@ -64,7 +70,7 @@ class MultiXasDialog(BaseDialog):
         layout.addLayout(self.select_sdd())
         layout.addLayout(self.select_eem_entry())
         layout.addWidget(self.pb_ploteems)
-        #layout.addWidget(self.h_line)
+        layout.addWidget(self.h_line)
 
         layout.addLayout(self.entry_num_layout)
         layout.addLayout(self.other_entry_num_layout)
