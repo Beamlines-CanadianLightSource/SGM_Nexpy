@@ -1,7 +1,7 @@
-from __future__ import print_function
+# from __future__ import print_function
 import numpy as np
 from PyQt5.QtCore import *
-from PyQt5.QtWidgets import QPushButton,QLineEdit,QVBoxLayout,QHBoxLayout,QLabel,QComboBox, QSlider, QFrame
+from PyQt5.QtWidgets import QPushButton, QLineEdit, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QSlider, QFrame
 from nexpy.gui.datadialogs import BaseDialog
 from nexpy.gui.utils import report_error
 from nexusformat.nexus.tree import *
@@ -14,12 +14,11 @@ def show_dialog(parent=None):
         dialog.show()
     except NeXusError as error:
         report_error("Plot multi XAS Scans", error)
-        
+
 
 class MultiXasDialog(BaseDialog):
-
     def __init__(self, parent=None):
-        
+
         super(MultiXasDialog, self).__init__(parent)
         layout = QVBoxLayout()
 
@@ -33,7 +32,6 @@ class MultiXasDialog(BaseDialog):
         self.h_line3.setFrameShape(QFrame.HLine)
         self.h_line3.setFrameShadow(QFrame.Sunken)
 
-
         self.select_root(text='Select File :')
         self.select_entry_num(text='First Entry :')
         self.select_entry_num(text='Last Entry :', other=True)
@@ -42,7 +40,7 @@ class MultiXasDialog(BaseDialog):
 
         self.roi_peak_slider()
         self.roi_width_slider()
-        
+
         self.pb_ploteems = QPushButton()
         self.pb_ploteems.setObjectName("plot eems")
         self.pb_ploteems.setText("Plot EEMS")
@@ -70,7 +68,7 @@ class MultiXasDialog(BaseDialog):
         layout.addLayout(self.select_sdd())
         layout.addLayout(self.select_eem_entry())
         layout.addWidget(self.pb_ploteems)
-        layout.addWidget(self.h_line)
+        # layout.addWidget(self.h_line)
 
         layout.addLayout(self.entry_num_layout)
         layout.addLayout(self.other_entry_num_layout)
@@ -93,7 +91,7 @@ class MultiXasDialog(BaseDialog):
         layout.addWidget(self.pb_get_normalized)
 
         # layout.addWidget(self.close_buttons())
-        
+
         self.setLayout(layout)
         self.pb_ploteems.clicked.connect(self.plot_eems)
         self.pb_getsumplot.clicked.connect(self.plot_sum)
@@ -101,14 +99,14 @@ class MultiXasDialog(BaseDialog):
         self.pb_get_normalized.clicked.connect(self.plot_normalized_data)
         self.root_box.currentIndexChanged.connect(self.refresh_entry)
         self.set_title('Multi XAS')
-   
+
     @property
     def start(self):
         return int(self.entry_num_box.currentText())
 
     @property
     def end(self):
-        return int(self.other_entry_num_box.currentText()) 
+        return int(self.other_entry_num_box.currentText())
 
     @property
     def bad_scan_str(self):
@@ -135,7 +133,7 @@ class MultiXasDialog(BaseDialog):
         return
 
     # drop down menu to select entry for summary plot and interpolated plot
-    def select_entry_num(self, text= 'Select Entry :', other=False):
+    def select_entry_num(self, text='Select Entry :', other=False):
         layout = QHBoxLayout()
         box = QComboBox()
         box.setSizeAdjustPolicy(QComboBox.AdjustToContents)
@@ -144,7 +142,7 @@ class MultiXasDialog(BaseDialog):
             entries.append(entry)
         for entry in sorted(entries):
             box.addItem(str(entry + 1))
-        
+
         layout.addWidget(QLabel(text))
         layout.addWidget(box)
         layout.addStretch()
@@ -155,7 +153,7 @@ class MultiXasDialog(BaseDialog):
             self.other_entry_num_box = box
             self.other_entry_num_layout = layout
 
-        return layout    
+        return layout
 
     @property
     def sum_det(self):
@@ -166,7 +164,7 @@ class MultiXasDialog(BaseDialog):
         layout = QHBoxLayout()
         box = QComboBox()
         box.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        sdds = ['TEY', 'I0', 'DIODE','PFY_SDD1', 'PFY_SDD2','PFY_SDD3','PFY_SDD4']
+        sdds = ['TEY', 'I0', 'DIODE', 'PFY_SDD1', 'PFY_SDD2', 'PFY_SDD3', 'PFY_SDD4']
         for sdd in sorted(sdds):
             box.addItem(sdd)
 
@@ -184,10 +182,10 @@ class MultiXasDialog(BaseDialog):
         layout = QHBoxLayout()
         box = QComboBox()
         box.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        sdds = ['SDD1', 'SDD2', 'SDD3','SDD4']
+        sdds = ['SDD1', 'SDD2', 'SDD3', 'SDD4']
         for sdd in sorted(sdds):
             box.addItem(sdd)
-        
+
         self.select_sdd_box = box
         self.select_sdd_layout = layout
 
@@ -224,13 +222,13 @@ class MultiXasDialog(BaseDialog):
         return self.select_divisor_box.currentText()
 
     # drop down menu to select dividend and divisor
-    def select_normalization(self, text = 'Normalization: '):
+    def select_normalization(self, text='Normalization: '):
 
         layout = QHBoxLayout()
         # dividend
         box = QComboBox()
         box.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        sdds = ['PFY_SDD1', 'PFY_SDD2','PFY_SDD3','PFY_SDD4']
+        sdds = ['PFY_SDD1', 'PFY_SDD2', 'PFY_SDD3', 'PFY_SDD4']
         for sdd in sorted(sdds):
             box.addItem(sdd)
 
@@ -263,7 +261,7 @@ class MultiXasDialog(BaseDialog):
 
     @property
     def roi_up(self):
-        up = self.peak + self.width/2
+        up = self.peak + self.width / 2
         if up > 256:
             return 256
 
@@ -271,7 +269,7 @@ class MultiXasDialog(BaseDialog):
 
     @property
     def roi_dn(self):
-        dn = self.peak - self.width/2
+        dn = self.peak - self.width / 2
         if dn < 0:
             return 0
 
@@ -306,12 +304,12 @@ class MultiXasDialog(BaseDialog):
         self.roi_width.valueChanged.connect(self.setRoi)
         roi_width_layout.addWidget(self.wLabel)
         return roi_width_layout
-   
+
     def setRoi(self):
         self.roi_width_label()
         self.roi_peak_label()
-        return self.roi_dn, self.roi_up 
-  
+        return self.roi_dn, self.roi_up
+
     def roi_peak_label(self):
         self.pLabel.setText(str(self.peak) + '0' + ' eV')
         return self.pLabel
@@ -319,18 +317,18 @@ class MultiXasDialog(BaseDialog):
     def roi_width_label(self):
         self.wLabel.setText(str(self.width) + '0' + ' eV')
         return self.wLabel
- 
+
     def plot_sum(self):
-        self.xas = multi_xas.getMultiXAS(self.root, range_start = self.start, range_end = self.end)
+        self.xas = multi_xas.getMultiXAS(self.root, range_start=self.start, range_end=self.end)
         self.xas.getpfy(self.roi_dn, self.roi_up)
-        print (self.sum_det)
+        print(self.sum_det)
         self.xas.summary_plot(self.sum_det)
         # return
 
     def plot_eems(self):
 
-        print ("Entry of summary plot is: ", self.eem_entry -1)
-        self.xas = multi_xas.getSingleXAS(self.root, self.eem_entry -1)
+        print("Entry of summary plot is: ", self.eem_entry - 1)
+        self.xas = multi_xas.getSingleXAS(self.root, self.eem_entry - 1)
         multi_xas.eem(self.xas, self.sdd)
         return self.xas
 
@@ -345,7 +343,7 @@ class MultiXasDialog(BaseDialog):
         # find the minimum value of energy
         energy = np.array(self.root.NXentry[self.start]['instrument/monochromator/en'])
         return np.amin(energy)
-    
+
     @property
     def end_en(self):
         # find the maximum value of energy
@@ -353,11 +351,12 @@ class MultiXasDialog(BaseDialog):
         return np.amax(energy)
 
     def avg_xas(self):
-        self.xas = multi_xas.getMultiXAS(self.root, range_start = self.start, range_end = self.end)
+        self.xas = multi_xas.getMultiXAS(self.root, range_start=self.start, range_end=self.end)
         self.xas.getpfy(self.roi_dn, self.roi_up)
         print(self.bad_scan_str)
         good_xas = multi_xas.get_good_scan(self.xas, bad_scan_string=self.bad_scan_str)
-        self.bin_xas = multi_xas.binned_xas(good_xas, start_energy=self.start_en, end_energy=self.end_en,bin_interval=0.1)
+        self.bin_xas = multi_xas.binned_xas(good_xas, start_energy=self.start_en, end_energy=self.end_en,
+                                            bin_interval=0.1)
         multi_xas.plot_avg_xas_all(self.bin_xas)
         scan_entry = str(self.root) + '_' + 'scans' + '_' + str(self.start) + '_' + str(self.end)
         try:
@@ -396,10 +395,11 @@ class MultiXasDialog(BaseDialog):
 
         self.tree.binned_data[scan_entry].data.signal = NXattr(self.sum_det.lower())
         self.tree.binned_data[scan_entry].data.axes = NXattr("energy")
-        return 
+        return
 
     def plot_normalized_data(self):
-        energy, normalized_array = multi_xas.plot_normalized(self.bin_xas, dividend = self.normalization_dividend, divisor = self.normalization_divisor)
+        energy, normalized_array = multi_xas.plot_normalized(self.bin_xas, dividend=self.normalization_dividend,
+                                                             divisor=self.normalization_divisor)
         try:
             scan_entry = "normalized"
             self.tree.normalized_data = NXroot()
@@ -407,12 +407,13 @@ class MultiXasDialog(BaseDialog):
             self.tree.normalized_data[scan_entry].data.energy = NXfield(energy)
             self.tree.normalized_data[scan_entry].data.normalized = NXfield(normalized_array)
         except:
-            print ("Error occurred when exported normalized data into the file")
+            print("Error occurred when exported normalized data into the file")
 
-    # def accept(self):
-    #     try:
-    #        self.avg_xas()
-    #        super(MultiXasDialog, self).accept()
-    #     except NeXusError as error:
-    #        report_error("Multi XAS", error)
-    #        super(MultiXasDialog, self).reject()
+            # def accept(self):
+            #     try:
+            #        self.avg_xas()
+            #        super(MultiXasDialog, self).accept()
+            #     except NeXusError as error:
+            #        report_error("Multi XAS", error)
+            #        super(MultiXasDialog, self).reject()
+

@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from . import map_plot, xas_plot, xas_multi, xas_export
+from . import map_plot, xas_plot, xas_export, xas_multi
 
 def plugin_menu():
     menu = 'SGMPy'
