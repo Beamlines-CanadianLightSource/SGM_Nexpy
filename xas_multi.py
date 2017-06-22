@@ -1,7 +1,8 @@
+from __future__ import print_function
 import numpy as np
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QPushButton,QLineEdit,QVBoxLayout,QHBoxLayout,QLabel,QComboBox, QSlider
-from nexpy.gui.datadialogs import BaseDialog, GridParameters
+from nexpy.gui.datadialogs import BaseDialog
 from nexpy.gui.utils import report_error
 from nexusformat.nexus.tree import *
 from . import multi_xas
@@ -29,7 +30,7 @@ class MultiXasDialog(BaseDialog):
        
         self.select_root(text='Select File :')
         self.select_entry_num(text='First Entry :')
-        self.select_entry_num(text='Last Entry :', other='True')
+        self.select_entry_num(text='Last Entry :', other=True)
         self.select_abs()
         self.select_sdd()
 
@@ -348,7 +349,7 @@ class MultiXasDialog(BaseDialog):
     def avg_xas(self):
         self.xas = multi_xas.getMultiXAS(self.root, range_start = self.start, range_end = self.end)
         self.xas.getpfy(self.roi_dn, self.roi_up)
-        print self.bad_scan_str
+        print(self.bad_scan_str)
         good_xas = multi_xas.get_good_scan(self.xas, bad_scan_string=self.bad_scan_str)
         self.bin_xas = multi_xas.binned_xas(good_xas, start_energy=self.start_en, end_energy=self.end_en,bin_interval=0.1)
         multi_xas.plot_avg_xas_all(self.bin_xas)

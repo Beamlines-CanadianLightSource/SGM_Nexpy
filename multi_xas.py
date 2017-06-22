@@ -1,7 +1,12 @@
+from __future__ import print_function
+from __future__ import print_function
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
-from cStringIO import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 import time
 from nexpy.gui.plotview import NXPlotView
 # from matplotlib.figure import Figure
@@ -305,7 +310,7 @@ def create_bins(start_energy, end_energy, bin_interval):
     end_energy = int(end_energy)
     print ("Start creating bins")
     num_of_bins = int ((end_energy-start_energy) / bin_interval)
-    print num_of_bins
+    print(num_of_bins)
     num_of_edges = num_of_bins + 1
     # print ("Number of Bins:", num_of_bins)
     # print ("Number of Edges:", num_of_edges)
@@ -347,7 +352,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
     pfy_sdd4_array = np.array(xas.pfy_sdd4)
 
     total_scan_num = len(energy_array)
-    print total_scan_num
+    print(total_scan_num)
 
     bin_array = [[] for i in range(num_of_bins)]
     temp_bin_array = [[[] for i in range(num_of_bins)] for j in range(total_scan_num)]
@@ -468,7 +473,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
         if total_data_point == 0:
             empty_bins = empty_bins + 1
             print ("No data point is in Bin No."+ str(index + 1) + ". Average calculation is not necessary")
-        elif scan_index==1:
+        elif scan_index == 1:
             print ("No average calculation if there is only 1 scan.")
         else:
             # print (tey_bin_array[index])

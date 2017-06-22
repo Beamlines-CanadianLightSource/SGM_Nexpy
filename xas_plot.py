@@ -1,7 +1,7 @@
 import numpy as np
-from nexpy.gui.datadialogs import BaseDialog, GridParameters
+from nexpy.gui.datadialogs import BaseDialog
 from nexpy.gui.utils import report_error
-from nexusformat.nexus import nxload, NeXusError, NXentry, NXdata, NXroot, NXfield
+from nexusformat.nexus import NeXusError, NXdata
 from nexusformat.nexus.tree import * 
 
 def show_dialog(parent=None):
@@ -34,10 +34,9 @@ class XasDialog(BaseDialog):
         return np.array(self.entry.instrument.monochromator.en)
 
     def plot_xas(self):
-	self.singleXas = NXdata(self.signal_s, self.energy)
+        self.singleXas = NXdata(self.signal_s, self.energy)
         self.singleXas.plot(xmin = min(self.energy), xmax=max(self.energy), ymin = min(self.signal_s), ymax = max(self.signal_s))
-
-	return
+        return
 
     def accept(self):
         try:
