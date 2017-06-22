@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QFileDialog
 from nexpy.gui.datadialogs import BaseDialog
 from nexpy.gui.utils import report_error
 from nexusformat.nexus.tree import *
-from . import export_data, multi_xas
+import export_data, multi_xas
 
 def show_dialog(parent=None):
     try:

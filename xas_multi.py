@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QPushButton,QLineEdit,QVBoxLayout,QHBoxLayout,QLabel
 from nexpy.gui.datadialogs import BaseDialog
 from nexpy.gui.utils import report_error
 from nexusformat.nexus.tree import *
-from . import multi_xas
+import multi_xas
 from customize_gui import QHLine
 
 
