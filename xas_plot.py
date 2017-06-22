@@ -1,7 +1,7 @@
 import numpy as np
-from nexpy.gui.datadialogs import BaseDialog
+from nexpy.gui.datadialogs import BaseDialog, GridParameters
 from nexpy.gui.utils import report_error
-from nexusformat.nexus import NeXusError, NXdata
+from nexusformat.nexus import nxload, NeXusError, NXentry, NXdata, NXroot, NXfield
 from nexusformat.nexus.tree import * 
 
 def show_dialog(parent=None):
