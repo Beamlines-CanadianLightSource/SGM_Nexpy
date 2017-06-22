@@ -1,4 +1,4 @@
-# from __future__ import print_function
+from __future__ import print_function
 import numpy as np
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import QPushButton, QLineEdit, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QSlider, QFrame
