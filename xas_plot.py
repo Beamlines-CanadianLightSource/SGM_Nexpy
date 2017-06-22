@@ -24,6 +24,7 @@ class XasDialog(BaseDialog):
         self.lab_sig = self.labels('Signal :', align='left')
         self.set_layout(self.entry_layout, self.lab_sig, self.signal_combo, self.close_buttons())
         self.set_title('Plot Single XAS')
+        self.plot_xas()
     
     @property
     def signal_s(self):
