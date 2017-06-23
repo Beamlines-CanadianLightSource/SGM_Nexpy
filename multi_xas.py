@@ -486,8 +486,10 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
     # remove empty bins in the front or at the end using slice indices
     if empty_bins != 0:
         index = 0
-        while pfy_sdd1_bin_array[index].any() == 0:
+        while pfy_sdd1_bin_array[index].any() == 0 and tey_bin_array[index] < 30000:
             index = index + 1
+            if index == len(pfy_sdd1_bin_array):
+               break
         empty_bin_front = index
         empty_bin_back = empty_bins - empty_bin_front
         last_non_empty_bin = num_of_bins - empty_bin_back
