@@ -121,8 +121,8 @@ class MultiXasDialog(BaseDialog):
         return self.bad_scans.text()
     
     @property
-    def bin_interval_str(self):
-        return self.bin_interval.text()
+    def bin_interval_val(self):
+        return float(self.bin_interval.text())
 
     @property
     def sdd(self):
@@ -265,27 +265,25 @@ class MultiXasDialog(BaseDialog):
 
     @property
     def peak(self):
-        return self.roi_peak.value()
+        return int(self.roi_peak.value())
 
     @property
     def width(self):
-        return self.roi_width.value()
+        return int(self.roi_width.value())
 
     @property
     def roi_up(self):
         up = self.peak + self.width / 2
         if up > 256:
             return 256
-
-        return up
+        return int(up)
 
     @property
     def roi_dn(self):
         dn = self.peak - self.width / 2
         if dn < 0:
             return 0
-
-        return dn
+        return int(dn)
 
     def roi_peak_slider(self, text='ROI Peak :'):
         roi_peak_layout = QHBoxLayout()
@@ -367,8 +365,7 @@ class MultiXasDialog(BaseDialog):
         self.xas.getpfy(self.roi_dn, self.roi_up)
         print(self.bad_scan_str)
         good_xas = multi_xas.get_good_scan(self.xas, bad_scan_string=self.bad_scan_str)
-        interval = float(self.bin_interval_str)
-        self.bin_xas = multi_xas.binned_xas(good_xas, start_energy=self.start_en, end_energy=self.end_en,bin_interval=interval)
+        self.bin_xas = multi_xas.binned_xas(good_xas, start_energy=self.start_en, end_energy=self.end_en,bin_interval=self.bin_interval_val)
         multi_xas.plot_avg_xas_all(self.bin_xas)
         scan_entry = str(self.root) + '_' + 'scans' + '_' + str(self.start) + '_' + str(self.end)
         try:

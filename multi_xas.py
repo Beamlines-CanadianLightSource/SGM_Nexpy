@@ -356,7 +356,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
     bin_array = [[] for i in range(num_of_bins)]
     temp_bin_array = [[[] for i in range(num_of_bins)] for j in range(total_scan_num)]
     bin_width = (edges_array[-1] - edges_array[0]) / num_of_bins
-    # print ("The width of a bin is:", bin_width)
+    print ("The width of a bin is:", bin_width)
     print("--- %s seconds ---" % (time.time() - start_time))
 
     # interation to assign data into bins
@@ -368,13 +368,12 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
             if energy_array[scan_index][datapoint_index] <= edges_array[-1]:
                 x = energy_array[scan_index][datapoint_index] - edges_array[0]
                 # code to debug assign data point problem
-                # if datapoint_index <= 50:
-                #     print ("Energy: ", energy_array[scan_index][datapoint_index])
-                #     print ("Edge :", edges_array[0])
-                #     print ("Sub: " , x)
+                if datapoint_index <= 50:
+                     print ("Energy: ", energy_array[scan_index][datapoint_index])
+                     print ("Edge :", edges_array[0])
+                     print ("Sub: " , x)
                 # get integer part and plus 1
                 assign_bin_num = int(x / bin_width) + 1
-                # print (assign_bin_num)
                 bin_array[assign_bin_num - 1].append([scan_index, datapoint_index])
 
                 # code to debug assign data point problem
