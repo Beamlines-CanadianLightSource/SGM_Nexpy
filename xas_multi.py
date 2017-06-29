@@ -56,6 +56,9 @@ class MultiXasDialog(BaseDialog):
         self.pb_get_normalized = QtGui.QPushButton()
         self.pb_get_normalized.setObjectName("normalized data")
         self.pb_get_normalized.setText("Normalized Data")
+	
+	    self.bin_interval = QtGui.QLineEdit("0.1")
+	    self.bin_interval.setObjectName("Bin Interval")
 
         self.bad_scans = QtGui.QLineEdit()
         self.bad_scans.setObjectName("Bad Scans")
@@ -76,7 +79,12 @@ class MultiXasDialog(BaseDialog):
         layout.addWidget(self.pb_getsumplot)
         layout.addWidget(self.h_line2)
 
-        bad_scan_layout = QtGui.QHBoxLayout()
+        bin_interval_layout = QtGui.QHBoxLayout()
+        bin_interval_layout.addWidget(QtGui.QLabel('Bin Interval (eV) : '))
+        bin_interval_layout.addWidget(self.bin_interval)
+        layout.addLayout(bin_interval_layout)
+
+	    bad_scan_layout = QtGui.QHBoxLayout()
         bad_scan_layout.addWidget(QtGui.QLabel('Bad Scans : '))
         bad_scan_layout.addWidget(self.bad_scans)
         layout.addLayout(bad_scan_layout)
@@ -107,6 +115,10 @@ class MultiXasDialog(BaseDialog):
     @property
     def bad_scan_str(self):
         return self.bad_scans.text()
+
+    @property
+    def bin_interval_str(self):
+	    return self.bin_interval.text()
 
     @property
     def sdd(self):
@@ -351,7 +363,8 @@ class MultiXasDialog(BaseDialog):
         self.xas.getpfy(self.roi_dn, self.roi_up)
         print self.bad_scan_str
         good_xas = multi_xas.get_good_scan(self.xas, bad_scan_string=self.bad_scan_str)
-        self.bin_xas = multi_xas.binned_xas(good_xas, start_energy=self.start_en, end_energy=self.end_en,bin_interval=0.1)
+	    interval = float(self.bin_interval_str)
+        self.bin_xas = multi_xas.binned_xas(good_xas, start_energy=self.start_en, end_energy=self.end_en,bin_interval=interval)
         multi_xas.plot_avg_xas_all(self.bin_xas)
         scan_entry = str(self.root) + '_' + 'scans' + '_' + str(self.start) + '_' + str(self.end)
         try:
