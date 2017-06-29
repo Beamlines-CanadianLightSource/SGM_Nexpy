@@ -61,10 +61,10 @@ class MultiXasDialog(BaseDialog):
         self.pb_get_normalized.setObjectName("normalized data")
         self.pb_get_normalized.setText("Normalized Data")
 
-        self.bin_interval = QtGui.QLineEdit("0.1")
+        self.bin_interval = QLineEdit("0.1")
         self.bin_interval.setObjectName("Bin Interval")
 
-        self.bad_scans = QtGui.QLineEdit()
+        self.bad_scans = QLineEdit()
         self.bad_scans.setObjectName("Bad Scans")
 
         layout.addLayout(self.root_layout)
