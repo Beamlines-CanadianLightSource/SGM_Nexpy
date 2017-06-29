@@ -83,13 +83,13 @@ class MultiXasDialog(BaseDialog):
         layout.addWidget(self.pb_getsumplot)
         layout.addWidget(self.h_line2)
 
-        bin_interval_layout = QtGui.QHBoxLayout()
-        bin_interval_layout.addWidget(QtGui.QLabel('Bin Interval (eV) : '))
+        bin_interval_layout = QHBoxLayout()
+        bin_interval_layout.addWidget(QLabel('Bin Interval (eV) : '))
         bin_interval_layout.addWidget(self.bin_interval)
         layout.addLayout(bin_interval_layout)
 
-        bad_scan_layout = QtGui.QHBoxLayout()
-        bad_scan_layout.addWidget(QtGui.QLabel('Bad Scans : '))
+        bad_scan_layout = QHBoxLayout()
+        bad_scan_layout.addWidget(QLabel('Bad Scans : '))
         bad_scan_layout.addWidget(self.bad_scans)
         layout.addLayout(bad_scan_layout)
         layout.addWidget(self.pb_get_averaged)
