@@ -306,7 +306,7 @@ def create_bins(start_energy, end_energy, bin_interval):
     end_energy = int(end_energy)
     print ("Start creating bins")
     num_of_bins = int ((end_energy-start_energy) / bin_interval)
-    print num_of_bins
+    print(num_of_bins)
     num_of_edges = num_of_bins + 1
     # print ("Number of Bins:", num_of_bins)
     # print ("Number of Edges:", num_of_edges)
@@ -348,7 +348,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
     pfy_sdd4_array = np.array(xas.pfy_sdd4)
 
     total_scan_num = len(energy_array)
-    print total_scan_num
+    print(total_scan_num)
 
     bin_array = [[] for i in range(num_of_bins)]
     temp_bin_array = [[[] for i in range(num_of_bins)] for j in range(total_scan_num)]
@@ -409,7 +409,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
 
             # if bin_num >= 460:
             #     print("bin num:", bin_num)
-
+            real_scan_num = np.full(num_of_bins, total_scan_num)
             for i in range(0, counts):
 
                 # code to debug assign data point problem
@@ -427,6 +427,7 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
 
             if (counts==0):
                 print ("No data point is in Bin No." + str(bin_num + 1)+ "for scan: "+ str(scan_index+1) + ". Average calculation is not necessary")
+                real_scan_num[bin_num] = real_scan_num[bin_num] - 1
                 tey_bin_array[bin_num] = tey_bin_array[bin_num]
                 i0_bin_array[bin_num] = i0_bin_array[bin_num]
                 diode_bin_array[bin_num] = diode_bin_array[bin_num]
@@ -469,19 +470,19 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
         if total_data_point == 0:
             empty_bins = empty_bins + 1
             print ("No data point is in Bin No."+ str(index + 1) + ". Average calculation is not necessary")
-        elif scan_index==1:
+        elif total_scan_num == 1:
             print ("No average calculation if there is only 1 scan.")
         else:
             # print (tey_bin_array[index])
             # print (total_scan_num)
             # code to calculate weighted average TEY, 2nd part
-            tey_bin_array[index] = tey_bin_array[index] / total_scan_num
-            i0_bin_array[index] = i0_bin_array[index] / total_scan_num
-            diode_bin_array[index] = diode_bin_array[index] / total_scan_num
-            pfy_sdd1_bin_array[index] = pfy_sdd1_bin_array[index] / total_scan_num
-            pfy_sdd2_bin_array[index] = pfy_sdd2_bin_array[index] / total_scan_num
-            pfy_sdd3_bin_array[index] = pfy_sdd3_bin_array[index] / total_scan_num
-            pfy_sdd4_bin_array[index] = pfy_sdd4_bin_array[index] / total_scan_num
+            tey_bin_array[index] = tey_bin_array[index] / real_scan_num[index]
+            i0_bin_array[index] = i0_bin_array[index] / real_scan_num[index]
+            diode_bin_array[index] = diode_bin_array[index] / real_scan_num[index]
+            pfy_sdd1_bin_array[index] = pfy_sdd1_bin_array[index] / real_scan_num[index]
+            pfy_sdd2_bin_array[index] = pfy_sdd2_bin_array[index] / real_scan_num[index]
+            pfy_sdd3_bin_array[index] = pfy_sdd3_bin_array[index] / real_scan_num[index]
+            pfy_sdd4_bin_array[index] = pfy_sdd4_bin_array[index] / real_scan_num[index]
 
     # remove empty bins in the front or at the end using slice indices
     if empty_bins != 0:
