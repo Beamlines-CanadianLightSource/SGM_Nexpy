@@ -30,6 +30,8 @@ class MapDialog(BaseDialog):
         self.axis1_combo = self.select_box(self.axes, default='hex_xp')
         self.axis2_combo = self.select_box(self.axes, default='hex_yp')
 
+
+
         roi_peak_layout = QHBoxLayout()
         roi_peak_layout.addWidget(QLabel('ROI Peak'))
         self.roi_peak = QSlider(Qt.Horizontal)
@@ -92,9 +94,16 @@ class MapDialog(BaseDialog):
         lab_axis2_layout.addWidget(self.axis2_combo)
         lab_axis2_layout.addStretch()
 
+        self.contours = QLineEdit("100")
+        self.contours.setObjectName("Number of Contours")
+        contour_layout = QHBoxLayout()
+        contour_layout.addWidget(QLabel('# of Contours : '))
+        contour_layout.addWidget(self.contours)
+
         self.set_layout(self.entry_layout, lab_sig_layout, lab_axis1_layout,
-                        lab_axis2_layout, roi_peak_layout, roi_width_layout, self.close_buttons())
+                        lab_axis2_layout, roi_peak_layout, roi_width_layout, contour_layout, self.close_buttons())
         self.set_title('Convert to 2D map')
+        self.setRoi()
 
     @property
     def signal(self):
@@ -107,6 +116,14 @@ class MapDialog(BaseDialog):
     @property
     def axis2(self):
         return self.axis2_combo.currentText()
+
+    @property
+    def depth(self):
+        try:
+            value = int(self.contours.text())
+            return value
+        except:
+            return 1000
 
     def get_pLabel(self):
         value = int(self.pLabel.text())
@@ -123,16 +140,14 @@ class MapDialog(BaseDialog):
         up = self.peak + self.width / 2
         if up > 256:
             return 256
-
-        return up
+        return int(up)
 
     @property
     def roi_dn(self):
         dn = self.peak - self.width / 2
         if dn < 0:
             return 0
-
-        return dn
+        return int(dn)
 
     def roi_peak_label(self):
         self.roi_peak.setValue(self.peak)
@@ -155,7 +170,7 @@ class MapDialog(BaseDialog):
         self.roi_width_label()
         self.roi_peak_label()
         self.plot_map()
-        return self.roi_dn, self.roi_up
+        return int(self.roi_dn), int(self.roi_up)
 
     def getylen(self):
         command = self.entry['command']
@@ -217,9 +232,12 @@ class MapDialog(BaseDialog):
                 self.tree.map2ddata['roi' + '_' + str(self.roi_dn) + ':' + str(self.roi_up)] = NXentry()
                 self.tree.map2ddata['roi' + '_' + str(self.roi_dn) + ':' + str(self.roi_up)]['data'] = NXdata(Z,
                                                                                                               [yi, xi])
-
+        minim = np.amin(Z)
+        maxim = np.amax(Z)
+        levels = linspace(minim, maxim, self.depth)
+        print(levels)
         plt.figure()
-        plt.contourf(X, Y, Z)
+        plt.contourf(X, Y, Z, levels)
         plt.gca().invert_yaxis()
         plt.gca().invert_xaxis()
         plt.xlabel('x (mm)')
