@@ -351,13 +351,19 @@ class MultiXasDialog(BaseDialog):
     @property
     def start_en(self):
         # find the minimum value of energy
-        energy = np.array(self.root.NXentry[self.start]['instrument/monochromator/en'])
+        try:
+            energy = np.array(self.root.NXentry[self.start]['instrument/monochromator/en'])
+        except:
+            energy = np.array(self.root.NXentry[0]['instrument/monochromator/en'])
         return np.amin(energy)
 
     @property
     def end_en(self):
         # find the maximum value of energy
-        energy = np.array(self.root.NXentry[self.start]['instrument/monochromator/en'])
+        try:
+            energy = np.array(self.root.NXentry[self.start]['instrument/monochromator/en'])
+        except:
+            energy = np.array(self.root.NXentry[0]['instrument/monochromator/en'])
         return np.amax(energy)
 
     def avg_xas(self):
