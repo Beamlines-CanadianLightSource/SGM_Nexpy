@@ -258,7 +258,11 @@ def get_good_scan(multi_xas, bad_scan_string):
             # print ("j: " + str(j))
             if scan_num_list[i] == 'entry'+ str(bad_scan_list[j]):
                 good_scan_list.remove('entry'+ str(bad_scan_list[j]))
-                good_scan_index.remove(i)
+                try:
+                    good_scan_index.remove(i)
+                except:
+                    good_scan_index = list(good_scan_index)
+                    good_scan_index.remove(i)
     print ("good_scan_list: ", good_scan_list)
     print ("good_scan_index: ",good_scan_index)
     return get_good_scan_data(multi_xas, good_scan_index, good_scan_list)

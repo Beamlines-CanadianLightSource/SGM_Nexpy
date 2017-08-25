@@ -38,7 +38,8 @@ class ExpDialog(BaseDialog):
     def accept(self):
         try:
             filename = QFileDialog.getSaveFileName(self, "Export File", "data.xas", filter="xas (*.xas *.)")
-            export_data.export_xas(self.xas, filename)
+            kwargs = dict(bad_scans=self.entry.data.bad_scans, scan_range = self.entry.data.scan_range)
+            export_data.export_xas(self.xas, filename, **kwargs)
             super(ExpDialog, self).accept()
         except NeXusError as error:
             report_error("Export Averaged XAS Scans", error)

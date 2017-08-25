@@ -373,7 +373,7 @@ class MultiXasDialog(BaseDialog):
         good_xas = multi_xas.get_good_scan(self.xas, bad_scan_string=self.bad_scan_str)
         self.bin_xas = multi_xas.binned_xas(good_xas, start_energy=self.start_en, end_energy=self.end_en,bin_interval=self.bin_interval_val)
         multi_xas.plot_avg_xas_all(self.bin_xas)
-        scan_entry = str(self.root) + '_' + 'scans' + '_' + str(self.start) + '_' + str(self.end)
+        scan_entry = str(self.root.nxname) + '_' + 'scans' + '_' + str(self.start) + '_' + str(self.end)
         try:
             self.tree.binned_data = NXroot()
             self.tree.binned_data[scan_entry] = NXentry(NXdata())
@@ -410,6 +410,8 @@ class MultiXasDialog(BaseDialog):
 
         self.tree.binned_data[scan_entry].data.signal = NXattr(self.sum_det.lower())
         self.tree.binned_data[scan_entry].data.axes = NXattr("energy")
+        self.tree.binned_data[scan_entry].data.bad_scans = NXattr(self.bad_scan_str)
+        self.tree.binned_data[scan_entry].data.scan_range = NXattr("(%s, %s)" % (self.start, self.end))
         return
 
     def plot_normalized_data(self):

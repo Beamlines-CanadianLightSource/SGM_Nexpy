@@ -1,12 +1,14 @@
 import os
 
 
-def export_xas (xas, filename):
+def export_xas (xas, filename, **kwargs):
     cwd = os.getcwd()
     export_file_path = filename
     print ("export to: " , export_file_path[0])
 
     with open(export_file_path[0], "w") as out_file:
+        for key in kwargs:
+            out_file.write("# %s : %s \n" % (key, kwargs[key]))
         out_file.write("# Energy\tTEY\tI0\tDiode\tPFY_SDD1\tPFY_SDD2\tPFY_SDD3\tPFY_SDD4\n")
         for i in range(0, len(xas.energy)):
             out_string = ""
