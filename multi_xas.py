@@ -357,13 +357,13 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
     total_scan_num = len(energy_array)
     print(total_scan_num)
 
-    bin_array = [[] for i in range(num_of_bins)]
-    temp_bin_array = [[[] for i in range(num_of_bins)] for j in range(total_scan_num)]
+    bin_array = [[] for i in range(0,num_of_bins+1)]
+    temp_bin_array = [[[] for i in range(0,num_of_bins+1)] for j in range(0,total_scan_num)]
     bin_width = (edges_array[-1] - edges_array[0]) / num_of_bins
     print ("The width of a bin is:", bin_width)
     print("--- %s seconds ---" % (time.time() - start_time))
-
-    # interation to assign data into bins
+    print("Number of bins:", len(bin_array))
+    # iteration to assign data into bins
     print ("Start assigning data points into bins")
 
     for scan_index in range(0, total_scan_num):
@@ -372,21 +372,20 @@ def assign_calculate_data(xas, mean_energy_array, edges_array, num_of_bins):
             if energy_array[scan_index][datapoint_index] <= edges_array[-1]:
                 x = energy_array[scan_index][datapoint_index] - edges_array[0]
                 # code to debug assign data point problem
-                if datapoint_index <= 50:
-                     print ("Energy: ", energy_array[scan_index][datapoint_index])
-                     print ("Edge :", edges_array[0])
-                     print ("Sub: " , x)
+                #if datapoint_index <= 50:
+                #     print ("Energy: ", energy_array[scan_index][datapoint_index])
+                #     print ("Edge :", edges_array[0])
+                #     print ("Sub: " , x)
                 # get integer part and plus 1
-                assign_bin_num = int(x / bin_width) + 1
-                bin_array[assign_bin_num - 1].append([scan_index, datapoint_index])
-
+                assign_bin_num = int(x / bin_width)
+                bin_array[assign_bin_num].append([scan_index, datapoint_index])
                 # code to debug assign data point problem
-                # if datapoint_index >= 1400 or datapoint_index <= 50:
-                #     print ("Assigned bin: ", assign_bin_num)
-                #     print ("data point index:", datapoint_index)
+                #if datapoint_index >= 1400 or datapoint_index <= 50:
+                #    print ("Assigned bin: ", assign_bin_num)
+                #    print ("data point index:", datapoint_index)
 
                 # record which bin a data point is assigned to
-                temp_bin_array[scan_index][assign_bin_num - 1].append(datapoint_index)
+                temp_bin_array[scan_index][assign_bin_num].append(datapoint_index)
 
                 # calculate the sum of scaler
                 # comment out the code calculating average of TEY
