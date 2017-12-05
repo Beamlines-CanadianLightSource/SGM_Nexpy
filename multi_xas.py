@@ -569,53 +569,47 @@ def plot_avg_xas_all(bin_xas):
     pfy_sdd3 = bin_xas.pfy_sdd3
     pfy_sdd4 = bin_xas.pfy_sdd4
 
-    plt.subplot(2, 4, 1)
-    plt.plot(en, tey)
+    fg = plotview.figure
+
+    ax = fg.add_subplot(241)
+    ax.plot(en, tey)
     # add lable for x and y axis
-    plt.xlabel('Energy (eV)')
-    plt.ylabel('TEY')
+    ax.set_xlabel('Energy (eV)')
+    ax.set_ylabel('TEY')
     # add title of the figure
-    plt.title('Binned(Averaged) TEY')
 
-    plt.subplot(2, 4, 2)
-    plt.plot(en, i0)
-    plt.xlabel('Energy (eV)')
-    plt.ylabel('I0')
-    plt.title('Binned(Averaged) I0')
+    ax2 = fg.add_subplot(242)
+    ax2.plot(en, i0)
+    ax2.set_xlabel('Energy (eV)')
+    ax2.set_ylabel('I0')
 
-    plt.subplot(2, 4, 3)
-    plt.plot(en, diode)
-    plt.xlabel('Energy (eV)')
-    plt.ylabel('Diode')
-    plt.title('Binned(Averaged) Diode')
+    ax3 = fg.add_subplot(243)
+    ax3.plot(en, diode)
+    ax3.set_xlabel('Energy (eV)')
+    ax3.set_ylabel('Diode')
 
-    plt.subplot(2, 4, 5)
-    plt.plot(en, pfy_sdd1)
-    plt.xlabel('Energy (eV)')
-    plt.ylabel('PFY_SDD1')
-    plt.title('Binned(Averaged) PFY_SDD1')
+    ax4 = fg.add_subplot(245)
+    ax4.plot(en, pfy_sdd1)
+    ax4.set_xlabel('Energy (eV)')
+    ax4.set_ylabel('PFY_SDD1')
 
-    plt.subplot(2, 4, 6)
-    plt.plot(en, pfy_sdd2)
-    plt.xlabel('Energy (eV)')
-    plt.ylabel('PFY_SDD2')
-    plt.title('Binned(Averaged) PFY_SDD2')
+    ax5 = fg.add_subplot(246)
+    ax5.plot(en, pfy_sdd2)
+    ax5.set_xlabel('Energy (eV)')
+    ax5.set_ylabel('PFY_SDD2')
 
-    plt.subplot(2, 4, 7)
-    plt.plot(en, pfy_sdd3)
-    plt.xlabel('Energy (eV)')
-    plt.ylabel('PFY_SDD3')
-    plt.title('Binned(Averaged) PFY_SDD3')
+    ax6 = fg.add_subplot(247)
+    ax6.plot(en, pfy_sdd3)
+    ax6.set_xlabel('Energy (eV)')
+    ax6.set_ylabel('PFY_SDD3')
 
-    plt.subplot(2, 4, 8)
-    plt.plot(en, pfy_sdd4)
-    plt.xlabel('Energy (eV)')
-    plt.ylabel('PFY_SDD4')
-    plt.title('Binned(Averaged) PFY_SDD4')
+    ax7 = fg.add_subplot(248)
+    ax7.plot(en, pfy_sdd4)
+    ax7.set_xlabel('Energy (eV)')
+    ax7.set_ylabel('PFY_SDD4')
 
-    plt.tight_layout()
     # use plotview from Nexpy to generate plots
-    plotview.figure = plt
+    #plotview.figure = fg
     plotview.tab_widget.removeTab(0)
     plotview.tab_widget.removeTab(0)
     plotview.draw()
