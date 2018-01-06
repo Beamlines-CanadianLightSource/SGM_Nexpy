@@ -240,7 +240,7 @@ class MultiXasDialog(BaseDialog):
         # dividend
         box = QComboBox()
         box.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        sdds = ['PFY_SDD1', 'PFY_SDD2', 'PFY_SDD3', 'PFY_SDD4']
+        sdds = ['TEY', 'PFY_SDD1', 'PFY_SDD2', 'PFY_SDD3', 'PFY_SDD4']
         for sdd in sorted(sdds):
             box.addItem(sdd)
 
